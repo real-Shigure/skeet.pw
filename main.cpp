@@ -249,7 +249,6 @@ DWORD WINAPI main(PVOID base)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	base_address = base;
-	AllocConsole();
 
 	if (!freopen(crypt_str("CONOUT$"), crypt_str("w"), stdout))
 	{
@@ -282,7 +281,6 @@ DWORD WINAPI main(PVOID base)
 	setup_hooks();
 	Netvars::Netvars();
 	
-	std::cout << crypt_str("Done!");
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	
