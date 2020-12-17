@@ -77,10 +77,10 @@ void misc::ChatSpamer()
 
 	static std::string chatspam[] = 
 	{ 
-		crypt_str("Legendware - stay with us or lose the game."),
-		crypt_str("Get good. Get legendware."),
-		crypt_str("Legendware - just the best."),
-		crypt_str("Go to another level with legendware."),
+		crypt_str("skeet - stay with us or lose the game."),
+		crypt_str("Get good. Get skeet.pw."),
+		crypt_str("aimware one steep ahead of the game"),
+		crypt_str("Lol trash baim imagine"),
 	};
 
 	static auto lastspammed = 0;
