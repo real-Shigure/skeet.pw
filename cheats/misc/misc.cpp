@@ -15,7 +15,7 @@
 #define VERSION crypt_str("Legendware | ")
 #endif
 #else
-#define VERSION crypt_str("Skeet.pw ")
+#define VERSION crypt_str("skeet.pw alpha ")
 #endif
 
 void misc::watermark()
