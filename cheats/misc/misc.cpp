@@ -78,7 +78,7 @@ void misc::ChatSpamer()
 	static std::string chatspam[] = 
 	{ 
 		crypt_str("skeet - stay with us or lose the game."),
-		crypt_str("Get good. Get skeet.pw."),
+		crypt_str("Get good. nn what you a 2020"),
 		crypt_str("aimware one steep ahead of the game"),
 		crypt_str("Lol trash baim imagine"),
 	};
