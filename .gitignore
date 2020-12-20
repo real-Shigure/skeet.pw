@@ -35,3 +35,5 @@
 /.vs
 /bin
 /release
+*.rps
+/Loader
