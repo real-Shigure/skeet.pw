@@ -38,4 +38,4 @@
 *.rps
 /Loader
 
-.cpp
+*.cpp
