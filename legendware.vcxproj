@@ -15,7 +15,7 @@
     <ProjectGuid>{1B8103F7-F793-47B0-9FBE-44EC66BC319D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>legendware</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
     <ProjectName>skeet.pw</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -56,10 +56,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>.\release</OutDir>
-    <IntDir>.\.vs</IntDir>
+    <OutDir>.\release\</OutDir>
+    <IntDir>.\.vs\</IntDir>
     <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);$(ExecutablePath);$(DXSDK_DIR)Utilities\bin\x86</ExecutablePath>
-    <IncludePath>C:\Users\Shonax\Desktop\shonax\game sdk 2020\steam_sdk;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath);$(DXSDK_DIR)Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(SolutionDir)\UI\freetype\include;$(SolutionDir)\lua\lua\src;$(SolutionDir);$(SolutionDir)\lua</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath);$(DXSDK_DIR)Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(SolutionDir)\UI\freetype\include;$(SolutionDir)\lua\lua\src;$(SolutionDir);$(SolutionDir)\lua</IncludePath>
     <LibraryPath>$(SolutionDir)\Lua;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(LibraryPath);$(DXSDK_DIR)Lib\x86;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(SolutionDir)\UI\freetype\objs;$(SolutionDir)\detours</LibraryPath>
     <TargetName>skeet.pw</TargetName>
   </PropertyGroup>
@@ -217,13 +217,6 @@
     <ClCompile Include="sdk\misc\UtlBuffer.cpp" />
     <ClCompile Include="sdk\misc\UtlString.cpp" />
     <ClCompile Include="sdk\structs.cpp" />
-    <ClCompile Include="skrt\imgui\imgui.cpp" />
-    <ClCompile Include="skrt\imgui\imgui_demo.cpp" />
-    <ClCompile Include="skrt\imgui\imgui_draw.cpp" />
-    <ClCompile Include="skrt\imgui\imgui_impl_dx9.cpp" />
-    <ClCompile Include="skrt\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="skrt\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="skrt\menu\Menu.cpp" />
     <ClCompile Include="TlsClient\crypt_data.cpp" />
     <ClCompile Include="TlsClient\TlsClient.cpp" />
     <ClCompile Include="utils\csgo.cpp" />
@@ -426,19 +419,6 @@
     <ClInclude Include="sdk\misc\UtlVectorSimple.hpp" />
     <ClInclude Include="sdk\misc\vfunc.hpp" />
     <ClInclude Include="sdk\structs.hpp" />
-    <ClInclude Include="skrt\imgui\imconfig.h" />
-    <ClInclude Include="skrt\imgui\imgui.h" />
-    <ClInclude Include="skrt\imgui\imgui_impl_dx9.h" />
-    <ClInclude Include="skrt\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="skrt\imgui\imgui_internal.h" />
-    <ClInclude Include="skrt\imgui\imstb_rectpack.h" />
-    <ClInclude Include="skrt\imgui\imstb_textedit.h" />
-    <ClInclude Include="skrt\imgui\imstb_truetype.h" />
-    <ClInclude Include="skrt\menu\Dropdown.h" />
-    <ClInclude Include="skrt\menu\Menu.h" />
-    <ClInclude Include="skrt\menu\MenuBackground.h" />
-    <ClInclude Include="skrt\menu\MenuControls.h" />
-    <ClInclude Include="skrt\menu\MenuFonts.h" />
     <ClInclude Include="TlsClient\crypt_data.h" />
     <ClInclude Include="TlsClient\TlsClient.h" />
     <ClInclude Include="utils\anti_debug.h" />
