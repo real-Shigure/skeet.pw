@@ -9,6 +9,37 @@
 //#include "utils\anti_debug.h"
 #include "nSkinz\SkinChanger.h"
 
+#include "./rpc/discord_register.h"
+#include "./rpc/discord_rpc.h"
+#pragma comment(lib, "discord-rpc.lib")
+DiscordRichPresence discordPresence;
+void UpdatePresence()
+{
+	DiscordRichPresence discordPresence;
+	std::memset(&discordPresence, 0, sizeof(discordPresence));
+	discordPresence.state = "Under our Title";
+	discordPresence.details = "Details Text";
+	discordPresence.startTimestamp = time(0); //initlialize time
+	discordPresence.largeImageKey = "large image"; //large image file name no extension
+	discordPresence.largeImageText = "hitting p ";
+	discordPresence.smallImageKey = "small image"; //same as large
+	discordPresence.smallImageText = "cute for looking ;)"; //displays on hover
+	Discord_UpdatePresence(&discordPresence); //do the do
+}
+
+void Initialize()
+{
+	DiscordEventHandlers handlers;
+	memset(&handlers, 0, sizeof(handlers));
+	Discord_Initialize("768309659646951434", &handlers, TRUE, nullptr);
+}
+
+void Shutdown()
+{
+	Discord_Shutdown(); //goodbye
+}
+
+
 
 
 //#include "utils\sha-256.h"
@@ -263,7 +294,7 @@ DWORD WINAPI main(PVOID base)
 	CreateDirectory(folder.c_str(), 0);
 	std::cout << crypt_str("Fixing cfg...\n");
 	
-
+	Initialize();
 	setup_sounds();
 
 	setup_skins();
@@ -277,9 +308,10 @@ DWORD WINAPI main(PVOID base)
 	c_lua::get().initialize();
 
 	key_binds::get().initialize_key_binds();
-
+	Initialize();
 	setup_hooks();
 	Netvars::Netvars();
+	UpdatePresence();
 	
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
