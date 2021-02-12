@@ -2,7 +2,7 @@
 #include "discord_register.h"
 #pragma comment(lib, "discord-rpc.lib")
 DiscordRichPresence discordPresence;
-void UpdatePresence()
+public void UpdatePresence()
 {
 	DiscordRichPresence discordPresence;
 	memset(&discordPresence, 0, sizeof(discordPresence));
@@ -16,14 +16,14 @@ void UpdatePresence()
 	Discord_UpdatePresence(&discordPresence); //do the do
 }
 
-void Initialize()
+public void Initialize()
 {
 	DiscordEventHandlers handlers;
 	memset(&handlers, 0, sizeof(handlers));
 	Discord_Initialize("768309659646951434", &handlers, TRUE, nullptr);
 }
 
- void Shutdown()
+public void Shutdown()
 {
 	Discord_Shutdown(); //goodbye
 }
