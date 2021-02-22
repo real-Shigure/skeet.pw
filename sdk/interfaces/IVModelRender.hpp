@@ -112,7 +112,7 @@ struct ModelRenderInfo_t
     int                     hitboxset;
     ModelInstanceHandle_t   instance;
 
-    ModelRenderInfo_t() //-V730
+    ModelRenderInfo_t()
     {
         pModelToWorld = NULL;
         pLightingOffset = NULL;

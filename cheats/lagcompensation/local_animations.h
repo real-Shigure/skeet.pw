@@ -27,7 +27,7 @@ class local_animations : public singleton <local_animations>
 
 	float abs_angles = 0.0f;
 	float pose_parameter[24];
-	AnimationLayer layers[15];
+	AnimationLayer layers[13];
 
 	void update_fake_animations();
 	void update_local_animations(c_baseplayeranimationstate* animstate);

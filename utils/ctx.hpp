@@ -59,11 +59,11 @@ struct correction_data
 	int choked_commands = 0;
 };
 
-class ctx_t  //-V730
+class ctx_t 
 {
 	CUserCmd* m_pcmd = nullptr;
 public:
-	struct Globals  //-V730
+	struct Globals 
 	{			
 		bool loaded_script = false;
 		bool focused_on_input = false;
@@ -99,6 +99,7 @@ public:
 		bool should_update_radar = false;
 		bool updating_skins = false;
 		bool should_update_weather = false;
+		bool dormant_by_hook = false;
 
 		int framerate = 0;
 		int ping = 0;
@@ -126,6 +127,7 @@ public:
 
 		std::string time = crypt_str("unknown");
 		
+		Vector wish_angle = ZERO;
 		Vector eye_pos = ZERO;
 		Vector start_position = ZERO;
 		Vector dormant_origin[65];
@@ -133,7 +135,6 @@ public:
 		matrix3x4_t prediction_matrix[MAXSTUDIOBONES];
 		matrix3x4_t fake_matrix[MAXSTUDIOBONES];
 
-		IClientNetworkable* m_networkable = nullptr;
 		weapon_t* weapon = nullptr;
 		std::vector <int> choked_number;
 		std::deque <command> commands;
@@ -146,11 +147,7 @@ public:
 	std::vector <std::string> signatures;
 	std::vector <int> indexes;
 
-#if RELEASE
 	std::string username;
-#else
-	std::string username = crypt_str("Immortale");
-#endif
 
 	std::string last_font_name;
 

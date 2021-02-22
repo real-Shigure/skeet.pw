@@ -1,11 +1,7 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #include "configs.h"
 #include "base64.h"
 #include "..\includes.hpp"
 #include "..\utils\util.hpp"
-#include <shlobj.h>
 
 std::unordered_map <std::string, float[4]> colors;
 
@@ -62,41 +58,39 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.ragebot.zeus_bot, false, crypt_str("Ragebot.zeus_bot"));
 	setup_item(&g_cfg.ragebot.knife_bot, false, crypt_str("Ragebot.knife_bot"));
 	setup_item(&g_cfg.ragebot.autoshoot, false, crypt_str("Ragebot.autoshoot"));
-	setup_item(&g_cfg.ragebot.double_tap, false, crypt_str("Ragebot.double_tap"));
-	setup_item(&g_cfg.ragebot.slow_teleport, false, crypt_str("Ragebot.slow_teleport"));
 	setup_item(&g_cfg.ragebot.double_tap_key, key_bind(TOGGLE), crypt_str("Ragebot.double_tap_key"));
+	setup_item(&g_cfg.ragebot.hide_shots_key, key_bind(TOGGLE), crypt_str("Ragebot.hide_shots_key"));
 	setup_item(&g_cfg.ragebot.autoscope, false, crypt_str("Ragebot.autoscope"));
 	setup_item(&g_cfg.ragebot.safe_point_key, key_bind(HOLD), crypt_str("Ragebot.safe_point_key"));
 	setup_item(&g_cfg.ragebot.body_aim_key, key_bind(HOLD), crypt_str("Ragebot.body_aim_key"));
-	setup_item(&g_cfg.ragebot.pitch_antiaim_correction, false, crypt_str("Ragebot.pitch_antiaim_correction"));
+	setup_item(&g_cfg.ragebot.damage_override_key, key_bind(HOLD), crypt_str("Ragebot.damage_override_key"));
 
 	for (auto i = 0; i < 8; i++)
 	{
-		setup_item(&g_cfg.ragebot.weapon[i].selection_type, 0, std::to_string(i) + crypt_str("Ragebot.selection_type"));
-		setup_item(&g_cfg.ragebot.weapon[i].autostop, false, std::to_string(i) + crypt_str("Ragebot_automaticstop"));
-		setup_item(&g_cfg.ragebot.weapon[i].autostop_modifiers, 6, std::to_string(i) + crypt_str("Ragebot.autostop_conditions"));
-		setup_item(&g_cfg.ragebot.weapon[i].double_tap_hitchance, false, std::to_string(i) + crypt_str("Ragebot.double_tap_hitchance"));
-		setup_item(&g_cfg.ragebot.weapon[i].double_tap_hitchance_amount, 1, std::to_string(i) + crypt_str("Ragebot.double_tap_hitchance_amount"));
 		setup_item(&g_cfg.ragebot.weapon[i].hitchance, false, std::to_string(i) + crypt_str("Ragebot.hitchance"));
 		setup_item(&g_cfg.ragebot.weapon[i].hitchance_amount, 1, std::to_string(i) + crypt_str("Ragebot.hitchance_amount"));
+		setup_item(&g_cfg.ragebot.weapon[i].double_tap, false, std::to_string(i) + crypt_str("Ragebot.double_tap"));
+		setup_item(&g_cfg.ragebot.weapon[i].double_tap_shift_value, 1, std::to_string(i) + crypt_str("Ragebot.double_tap_shift_value"));
+		setup_item(&g_cfg.ragebot.weapon[i].slow_teleport, false, std::to_string(i) + crypt_str("Ragebot.slow_teleport"));
+		setup_item(&g_cfg.ragebot.weapon[i].double_tap_hitchance, false, std::to_string(i) + crypt_str("Ragebot.double_tap_hitchance"));
+		setup_item(&g_cfg.ragebot.weapon[i].double_tap_hitchance_amount, 1, std::to_string(i) + crypt_str("Ragebot.double_tap_hitchance_amount"));
+		setup_item(&g_cfg.ragebot.weapon[i].hide_shots, false, std::to_string(i) + crypt_str("Ragebot.hide_shots"));
+		setup_item(&g_cfg.ragebot.weapon[i].hide_shots_shift_value, 1, std::to_string(i) + crypt_str("Ragebot.hide_shots_shift_value"));
 		setup_item(&g_cfg.ragebot.weapon[i].minimum_visible_damage, 1, std::to_string(i) + crypt_str("Ragebot.minimum_visible_damage"));
 		setup_item(&g_cfg.ragebot.weapon[i].minimum_damage, 1, std::to_string(i) + crypt_str("Ragebot.minimum_damage"));
-		setup_item(&g_cfg.ragebot.weapon[i].damage_override_key, key_bind(HOLD), std::to_string(i) + crypt_str("Ragebot.damage_override_key"));
 		setup_item(&g_cfg.ragebot.weapon[i].minimum_override_damage, 1, std::to_string(i) + crypt_str("Ragebot.minimum_override_damage"));
 		setup_item(&g_cfg.ragebot.weapon[i].hitboxes, 9, std::to_string(i) + crypt_str("Ragebot.hitboxes"));
 		setup_item(&g_cfg.ragebot.weapon[i].static_point_scale, false, std::to_string(i) + crypt_str("Ragebot.static_point_scale"));
 		setup_item(&g_cfg.ragebot.weapon[i].head_scale, 0.0f, std::to_string(i) + crypt_str("Ragebot.head_scale"));
 		setup_item(&g_cfg.ragebot.weapon[i].body_scale, 0.0f, std::to_string(i) + crypt_str("Ragebot.body_scale"));
-		setup_item(&g_cfg.ragebot.weapon[i].max_misses, false, std::to_string(i) + crypt_str("Ragebot.max_misses"));
-		setup_item(&g_cfg.ragebot.weapon[i].max_misses_amount, 0, std::to_string(i) + crypt_str("Ragebot.max_misses_amount"));
-		setup_item(&g_cfg.ragebot.weapon[i].prefer_safe_points, false, std::to_string(i) + crypt_str("Ragebot.prefer_safe_points"));
-		setup_item(&g_cfg.ragebot.weapon[i].prefer_body_aim, false, std::to_string(i) + crypt_str("Ragebot.prefer_body_aim"));
+		setup_item(&g_cfg.ragebot.weapon[i].safe_points_conditions, 7, std::to_string(i) + crypt_str("Ragebot.safe_points_conditions"));
+		setup_item(&g_cfg.ragebot.weapon[i].body_aim_conditions, 6, std::to_string(i) + crypt_str("Ragebot.body_aim_conditions"));
+		setup_item(&g_cfg.ragebot.weapon[i].automatic_stop_conditions, 6, std::to_string(i) + crypt_str("Ragebot.automatic_stop_conditions"));
+		setup_item(&g_cfg.ragebot.weapon[i].selection_type, 0, std::to_string(i) + crypt_str("Ragebot.selection_type"));
 	}
 
 	setup_item(&g_cfg.antiaim.enable, false, crypt_str("Antiaim.enable"));
 	setup_item(&g_cfg.antiaim.antiaim_type, 0, crypt_str("Antiaim.antiaim_type"));
-	setup_item(&g_cfg.antiaim.hide_shots, false, crypt_str("Ragebot.hide_shots"));
-	setup_item(&g_cfg.antiaim.hide_shots_key, key_bind(TOGGLE), crypt_str("Ragebot.hide_shots_key"));
 	setup_item(&g_cfg.antiaim.desync, 0, crypt_str("Antiaim.desync"));
 	setup_item(&g_cfg.antiaim.legit_lby_type, 0, crypt_str("Antiaim.legit_lby_type"));
 	setup_item(&g_cfg.antiaim.lby_type, 0, crypt_str("Antiaim.lby_type"));
@@ -109,8 +103,8 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.antiaim.fakelag, false, crypt_str("Antiaim.fake_lag"));
 	setup_item(&g_cfg.antiaim.fakelag_type, 0, crypt_str("Antiaim.fake_lag_type"));
 	setup_item(&g_cfg.antiaim.fakelag_enablers, 4, crypt_str("Antiaim.fake_lag_enablers"));
-	setup_item(&g_cfg.antiaim.fakelag_amount, 1, crypt_str("Antiaim.fake_lag_limit"));
-	setup_item(&g_cfg.antiaim.triggers_fakelag_amount, 1, crypt_str("Antiaim.triggers_fakelag_limit"));
+	setup_item(&g_cfg.antiaim.fakelag_limit, 1, crypt_str("Antiaim.fake_lag_limit"));
+	setup_item(&g_cfg.antiaim.triggers_fakelag_limit, 1, crypt_str("Antiaim.triggers_fakelag_limit"));
 
 	for (auto i = 0; i < 4; i++)
 	{
@@ -142,8 +136,8 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.player.show_multi_points_color, Color(255, 255, 255), crypt_str("Player.show_multi_points_color"));
 	setup_item(&g_cfg.player.lag_hitbox, false, crypt_str("Player.lag_hitbox"));
 	setup_item(&g_cfg.player.lag_hitbox_color, Color(255, 255, 255), crypt_str("Player.lag_hitbox_color"));
-	setup_item(&g_cfg.player.player_model_t, 0, crypt_str("Esp.player_model_t"));
-	setup_item(&g_cfg.player.player_model_ct, 0, crypt_str("Esp.player_model_ct"));
+	setup_item(&g_cfg.player.player_model_t, 0, crypt_str("Player.player_model_t"));
+	setup_item(&g_cfg.player.player_model_ct, 0, crypt_str("Player.player_model_ct"));
 	setup_item(&g_cfg.player.local_chams_type, 0, crypt_str("Player.local_chams_type"));
 	setup_item(&g_cfg.player.fake_chams_enable, false, crypt_str("Player.fake_chams_enable"));
 	setup_item(&g_cfg.player.visualize_lag, false, crypt_str("Player.vizualize_lag"));
@@ -257,12 +251,10 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.esp.weapon_double_material_color, Color(255, 255, 255), crypt_str("Esp.weapon_double_material_color"));
 	setup_item(&g_cfg.esp.weapon_animated_material, false, crypt_str("Esp.weapon_animated_material"));
 	setup_item(&g_cfg.esp.weapon_animated_material_color, Color(255, 255, 255), crypt_str("Esp.weapon_animated_material_color"));
-	setup_item(&g_cfg.esp.taser_range, false, crypt_str("Esp.taser_range"));
 	setup_item(&g_cfg.esp.show_spread, false, crypt_str("Esp.show_spread"));
 	setup_item(&g_cfg.esp.show_spread_color, Color(255, 255, 255), crypt_str("Esp.show_spread_color"));
 	setup_item(&g_cfg.esp.penetration_reticle, false, crypt_str("Esp.penetration_reticle"));
 	setup_item(&g_cfg.esp.world_modulation, false, crypt_str("Esp.world_modulation"));
-	setup_item(&g_cfg.esp.rain, false, crypt_str("Esp.rain"));
 	setup_item(&g_cfg.esp.bloom, 0.0f, crypt_str("Esp.bloom"));
 	setup_item(&g_cfg.esp.exposure, 0.0f, crypt_str("Esp.exposure"));
 	setup_item(&g_cfg.esp.ambient, 0.0f, crypt_str("Esp.ambient"));
@@ -281,9 +273,11 @@ void C_ConfigManager::setup()
 
 	setup_item(&g_cfg.misc.spectators_list, false, crypt_str("Misc.spectators_list"));
 	setup_item(&g_cfg.misc.ingame_radar, false, crypt_str("Misc.ingame_radar"));
-	setup_item(&g_cfg.misc.ragdolls, false, crypt_str("Misc.ragdolls"));
+	setup_item(&g_cfg.misc.ragdolls_x, 1, crypt_str("Misc.ragdolls_x"));
+	setup_item(&g_cfg.misc.ragdolls_y, 1, crypt_str("Misc.ragdolls_y"));
+	setup_item(&g_cfg.misc.ragdolls_z, 1, crypt_str("Misc.ragdolls_z"));
 	setup_item(&g_cfg.misc.bunnyhop, false, crypt_str("Misc.autohop"));
-	setup_item(&g_cfg.misc.airstrafe, 0, crypt_str("Misc.airstrafe"));
+	setup_item(&g_cfg.misc.airstrafe, false, crypt_str("Misc.airstrafe"));
 	setup_item(&g_cfg.misc.crouch_in_air, false, crypt_str("Misc.crouch_in_air"));
 	setup_item(&g_cfg.misc.automatic_peek, key_bind(HOLD), crypt_str("Misc.automatic_peek"));
 	setup_item(&g_cfg.misc.edge_jump, key_bind(HOLD), crypt_str("Misc.edge_jump"));
@@ -292,28 +286,26 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.misc.fast_stop, false, crypt_str("Misc.fast_stop"));
 	setup_item(&g_cfg.misc.slidewalk, false, crypt_str("Misc.slidewalk"));
 	setup_item(&g_cfg.misc.slowwalk_key, key_bind(HOLD), crypt_str("Misc.slowwalk_key"));
-	setup_item(&g_cfg.misc.chat, false, crypt_str("Misc.chat"));
 	setup_item(&g_cfg.misc.log_output, 2, crypt_str("Misc.log_output"));
 	setup_item(&g_cfg.misc.events_to_log, 3, crypt_str("Misc.events_to_log"));
 	setup_item(&g_cfg.misc.show_default_log, false, crypt_str("Misc.show_default_log"));
 	setup_item(&g_cfg.misc.log_color, Color(255, 255, 255), crypt_str("Misc.log_color"));
 	setup_item(&g_cfg.misc.inventory_access, false, crypt_str("Misc.inventory_access"));
 	setup_item(&g_cfg.misc.rank_reveal, false, crypt_str("Misc.rank_reveal"));
-	setup_item(&g_cfg.misc.clantag_spammer, false, crypt_str("Misc.clantag_spammer"));
 	setup_item(&g_cfg.misc.aspect_ratio, false, crypt_str("Misc.aspect_ratio"));
 	setup_item(&g_cfg.misc.aspect_ratio_amount, 1.0f, crypt_str("Misc.aspect_ratio_amount"));
 	setup_item(&g_cfg.misc.anti_screenshot, false, crypt_str("Misc.anti_screenshot"));
 	setup_item(&g_cfg.misc.anti_untrusted, true, crypt_str("Misc.antiuntrusted"));
 	setup_item(&g_cfg.misc.buybot_enable, false, crypt_str("Misc.buybot"));
-	setup_item(&g_cfg.misc.buybot1, 0, crypt_str("Player.buybot1"));
-	setup_item(&g_cfg.misc.buybot2, 0, crypt_str("Player.buybot2"));
+	setup_item(&g_cfg.misc.buybot1, 0, crypt_str("Misc.buybot1"));
+	setup_item(&g_cfg.misc.buybot2, 0, crypt_str("Misc.buybot2"));
 	setup_item(&g_cfg.misc.buybot3, 4, crypt_str("Misc.buybot3"));
 
 	setup_item(&g_cfg.skins.rare_animations, false, crypt_str("Skins.rare_animations"));
 
 	for (auto i = 0; i < g_cfg.skins.skinChanger.size(); i++)
 	{
-		setup_item(&g_cfg.skins.skinChanger.at(i).definition_override_index, 0, std::to_string(i) + crypt_str("Skins.definition_override_index")); //-V807
+		setup_item(&g_cfg.skins.skinChanger.at(i).definition_override_index, 0, std::to_string(i) + crypt_str("Skins.definition_override_index"));
 		setup_item(&g_cfg.skins.skinChanger.at(i).definition_override_vector_index, 0, std::to_string(i) + crypt_str("Skins.definition_override_vector_index"));
 		setup_item(&g_cfg.skins.skinChanger.at(i).entity_quality_vector_index, 0, std::to_string(i) + crypt_str("Skins.entity_quality_vector_index"));
 		setup_item(&g_cfg.skins.skinChanger.at(i).itemId, 0, std::to_string(i) + crypt_str("Skins.itemId"));
@@ -327,8 +319,8 @@ void C_ConfigManager::setup()
 		setup_item(&g_cfg.skins.custom_name_tag[i], crypt_str(""), std::to_string(i) + crypt_str("Skins.custom_name_tag"));
 	}
 
-	setup_item(&g_cfg.menu.menu_theme, Color(126, 131, 219), crypt_str("Menu.menu_color"));
-	setup_item(&g_cfg.menu.watermark, false, crypt_str("Menu.watermark"));
+	setup_item(&g_cfg.menu.menu_theme, Color(89, 119, 239), crypt_str("Menu.menu_color"));
+	setup_item(&g_cfg.menu.watermark, true, crypt_str("Menu.watermark"));
 
 	setup_item(&g_cfg.scripts.scripts, crypt_str("Scripts.loaded"));
 }
@@ -402,11 +394,9 @@ void C_ConfigManager::save(std::string config)
 
 		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, NULL, path)))
 		{
-			folder = std::string(path) + crypt_str("\\Legendware\\Configs\\");
-			file = std::string(path) + crypt_str("\\Legendware\\Configs\\") + config;
+			folder = std::string(path) + crypt_str("\\skeet.idb\\Configs\\");
+			file = std::string(path) + crypt_str("\\skeet.idb\\Configs\\") + config;
 		}
-
-		CreateDirectory(folder.c_str(), NULL);
 	};
 
 	get_dir();
@@ -420,7 +410,7 @@ void C_ConfigManager::save(std::string config)
 		j[crypt_str("type")] = it->type;
 
 		if (!it->type.compare(crypt_str("int"))) 
-			j[crypt_str("value")] = (int)*(int*)it->pointer; //-V206
+			j[crypt_str("value")] = (int)*(int*)it->pointer;
 		else if (!it->type.compare(crypt_str("float"))) 
 			j[crypt_str("value")] = (float)*(float*)it->pointer;
 		else if (!it->type.compare(crypt_str("bool"))) 
@@ -565,11 +555,9 @@ void C_ConfigManager::load(std::string config, bool load_script_items)
 
 		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, NULL, path)))
 		{
-			folder = std::string(path) + crypt_str("\\Legendware\\Configs\\");
-			file = std::string(path) + crypt_str("\\Legendware\\Configs\\") + config;
+			folder = std::string(path) + crypt_str("\\skeet.idb\\Configs\\");
+			file = std::string(path) + crypt_str("\\skeet.idb\\Configs\\") + config;
 		}
-
-		CreateDirectory(folder.c_str(), NULL);
 	};
 
 	get_dir();
@@ -687,7 +675,7 @@ void C_ConfigManager::load(std::string config, bool load_script_items)
 			if (item)
 			{
 				if (!type.compare(crypt_str("int")))
-					*(int*)item->pointer = j[crypt_str("value")].get<int>(); //-V206
+					*(int*)item->pointer = j[crypt_str("value")].get<int>();
 				else if (!type.compare(crypt_str("float")))
 					*(float*)item->pointer = j[crypt_str("value")].get<float>();
 				else if (!type.compare(crypt_str("bool")))
@@ -750,11 +738,9 @@ void C_ConfigManager::remove(std::string config)
 
 		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, NULL, path)))
 		{
-			folder = std::string(path) + crypt_str("\\Legendware\\Configs\\");
-			file = std::string(path) + crypt_str("\\Legendware\\Configs\\") + config;
+			folder = std::string(path) + crypt_str("\\skeet.idb\\Configs\\");
+			file = std::string(path) + crypt_str("\\skeet.idb\\Configs\\") + config;
 		}
-
-		CreateDirectory(folder.c_str(), NULL);
 	};
 
 	get_dir();
@@ -772,15 +758,13 @@ void C_ConfigManager::config_files()
 		static TCHAR path[MAX_PATH];
 
 		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, NULL, path)))
-			folder = std::string(path) + crypt_str("\\Legendware\\Configs\\");
-
-		CreateDirectory(folder.c_str(), NULL);
+			folder = std::string(path) + crypt_str("\\skeet.idb\\Configs\\");
 	};
 
 	get_dir();
 	files.clear();
 
-	std::string path = folder + crypt_str("/*.lw");
+	std::string path = folder + crypt_str("/*.idb");
 	WIN32_FIND_DATA fd;
 
 	HANDLE hFind = FindFirstFile(path.c_str(), &fd);

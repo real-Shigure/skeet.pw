@@ -25,9 +25,9 @@ bool vmthook::initialize(PDWORD* ppdwClassBase)
 	m_OldVT = *ppdwClassBase;
 	m_VTSize = get_vt_count(*ppdwClassBase);
 
-	m_NewVT = new DWORD[m_VTSize + 1]; //-V121
+	m_NewVT = new DWORD[m_VTSize + 1];
 	memcpy(&m_NewVT[1], m_OldVT, sizeof(DWORD) * m_VTSize);
-	m_NewVT[0] = (uintptr_t)m_OldVT[-1]; //-V201 //-V103
+	m_NewVT[0] = (uintptr_t)m_OldVT[-1]; //-V201
 
 	DWORD old;
 	VirtualProtect(ppdwClassBase, sizeof(DWORD), PAGE_EXECUTE_READWRITE, &old);

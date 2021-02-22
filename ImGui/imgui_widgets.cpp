@@ -671,7 +671,7 @@ bool ImGui::ContentTab(const char* label, bool active, const ImVec2& size_arg, I
 
     // Render
     const ImVec4 text_dis = ImVec4(202 / 255.f, 202 / 255.f, 202 / 255.f, 1.f);
-    const ImVec4 text_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 text_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 text_hov = ImVec4(255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f);
 
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
@@ -804,7 +804,7 @@ bool ImGui::MainTab(const char* label, ImFont* icon_font, const char* icon, bool
     const ImVec4 text_act = ImVec4(255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f);
 
     const ImVec4 icon_dis = ImVec4(202 / 255.f, 202 / 255.f, 202 / 255.f, 1.f);
-    const ImVec4 icon_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 icon_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
 
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
 
@@ -943,14 +943,14 @@ bool ImGui::MainTab(const char* label, ImFont* icon_font, const char* icon, bool
     PushStyleColor(ImGuiCol_Text, it_icon->second);
 
     PushFont(icon_font);
-    RenderTextClipped(bb.Min + ImVec2(size_arg.x * 0.05f, -3 * c_menu::get().dpi_scale), bb.Max, icon, NULL, &icon_size, ImVec2(0.f, 0.27f), &bb);
+    RenderTextClipped(bb.Min + ImVec2(size_arg.x * 0.05f, -3), bb.Max, icon, NULL, &icon_size, ImVec2(0.f, 0.27f), &bb);
     PopFont();
 
     PopStyleColor();
 
 
     PushStyleColor(ImGuiCol_Text, it_text->second);
-    RenderTextClipped(bb.Min + ImVec2(size_arg.x * 0.33f, (4 * c_menu::get().dpi_scale) - 4), bb.Max, label, NULL, &label_size, ImVec2(0.f, 0.41f), &bb);
+    RenderTextClipped(bb.Min + ImVec2(size_arg.x * 0.33f, 0), bb.Max, label, NULL, &label_size, ImVec2(0.f, 0.41f), &bb);
     PopStyleColor();
 
     // Automatically close popups
@@ -1064,8 +1064,8 @@ bool ImGui::KeybindButton(const char* label, const char* unique_id, const ImVec2
     // Render
     const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 
-    RenderFrame(bb.Min, bb.Max, col, true, 2.f * c_menu::get().dpi_scale);
-    ImGui::GetWindowDrawList()->AddRect(bb.Min, bb.Max, GetColorU32(ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, it_hover->second)), 2.f * c_menu::get().dpi_scale);
+    RenderFrame(bb.Min, bb.Max, col, true, 2.f);
+    ImGui::GetWindowDrawList()->AddRect(bb.Min, bb.Max, GetColorU32(ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, it_hover->second)), 2.f);
 
     PushStyleColor(ImGuiCol_Text, it_hcolor->second);
     RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
@@ -1213,15 +1213,15 @@ bool ImGui::CustomButton(const char* label, const char* label_id, const ImVec2& 
     const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 
     const ImVec4 text_act = ImVec4(255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f);
-    const ImVec4 icon_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 icon_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
 
-    RenderFrame(bb.Min, bb.Max, col, true, 2.f * c_menu::get().dpi_scale);
+    RenderFrame(bb.Min, bb.Max, col, true, 2.f);
 
     window->DrawList->PushClipRect(bb.Min, bb.Max, false);
-    ImGui::GetWindowDrawList()->AddCircleFilled(it_circle->second.pos, it_circle->second.radius, GetColorU32(ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, it_circle->second.alpha)), 60);
+    ImGui::GetWindowDrawList()->AddCircleFilled(it_circle->second.pos, it_circle->second.radius, GetColorU32(ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, it_circle->second.alpha)), 60);
     window->DrawList->PopClipRect();
 
-    ImGui::GetWindowDrawList()->AddRect(bb.Min, bb.Max, GetColorU32(ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, it_hover->second)), 2.f * c_menu::get().dpi_scale);
+    ImGui::GetWindowDrawList()->AddRect(bb.Min, bb.Max, GetColorU32(ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, it_hover->second)), 2.f);
 
     if (use_icon)
     {
@@ -1513,7 +1513,7 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, floa
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
 
     // Render
-    ImVec4 hover_dis = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    ImVec4 hover_dis = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     ImVec4 hover_act = ImVec4(147 / 255.f, 157 / 255.f, 249 / 255.f, 1.f);
 
     static std::map<ImGuiID, ImVec4> hover_color;
@@ -1707,7 +1707,7 @@ bool ImGui::Checkbox(const char* label, bool* v)
     const ImVec4 text_act = ImVec4(244 / 255.f, 244 / 255.f, 244 / 255.f, 1.f);
 
     const ImVec4 hover_act = ImVec4(202 / 255.f, 202 / 255.f, 202 / 255.f, 1.f);
-    const ImVec4 hover_dis = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 hover_dis = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
 
     static std::map<ImGuiID, ImVec4> hover_color;
     auto it_hcolor = hover_color.find(id);
@@ -1847,15 +1847,14 @@ bool ImGui::Checkbox(const char* label, bool* v)
 
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
 
-    window->DrawList->AddRect(check_bb.Min, check_bb.Max, GetColorU32(ImVec4(it_hcolor->second.x, it_hcolor->second.y, it_hcolor->second.z, it_hover->second)), 2.f * c_menu::get().dpi_scale, 15, 0.7f);
+    window->DrawList->AddRect(check_bb.Min, check_bb.Max, GetColorU32(ImVec4(it_hcolor->second.x, it_hcolor->second.y, it_hcolor->second.z, it_hover->second)), 2.f, 15, 0.7f);
 
-    window->DrawList->AddRectFilled(check_bb.Min, check_bb.Max, GetColorU32(ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, it_filled->second)), 2.f * c_menu::get().dpi_scale);
-
+    window->DrawList->AddRectFilled(check_bb.Min, check_bb.Max, GetColorU32(ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, it_filled->second)), 2.f);
 
     ImGui::PushStyleColor(ImGuiCol_Text, it_text->second);
 
     if (label_size.x > 0.0f)
-        RenderText(ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + 2 * c_menu::get().dpi_scale - (1 * (1.8 - c_menu::get().dpi_scale))), label);
+        RenderText(ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + 1.2), label);
 
     ImGui::PopStyleColor();
 
@@ -2315,7 +2314,7 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
 
     const ImU32 frame_col = GetColorU32(hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
 
-    const ImVec4 hover_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 hover_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 hover_dis = ImVec4(74 / 255.f, 79 / 255.f, 143 / 255.f, 0.4f);;
 
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
@@ -2398,7 +2397,7 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
         }
     }
 
-    const ImVec4 arrow_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 arrow_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 arrow_dis = ImVec4(150 / 255.f, 150 / 255.f, 150 / 255.f, 1.f);;
     static std::map<ImGuiID, ImVec4> arrow_col_animation;
     auto it_arrow_col = arrow_col_animation.find(id);
@@ -3220,7 +3219,7 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
         return false;
 
     if (window->DC.CurrLineTextBaseOffset != window->DC.PrevLineTextBaseOffset)
-        SetCursorPosY(GetCursorPosY() + c_menu::get().dpi_scale * 8.f);
+        SetCursorPosY(GetCursorPosY() + 8.f);
 
     if (power != 1.0f)
         IM_ASSERT(p_min != NULL && p_max != NULL); // When using a power curve the drag needs to have known bounds
@@ -3272,7 +3271,7 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
 
     // Draw frame
     const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : g.HoveredId == id ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
-    const ImVec4 hover_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 hover_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 hover_dis = ImVec4(74 / 255.f, 79 / 255.f, 143 / 255.f, 0.4f);;
 
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
@@ -3763,21 +3762,21 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
         return false;
 
     if (window->DC.CurrLineTextBaseOffset != window->DC.PrevLineTextBaseOffset)
-        SetCursorPosY(GetCursorPosY() + c_menu::get().dpi_scale * 8.f);
+        SetCursorPosY(GetCursorPosY() + 8.f);
 
-    SetCursorPosX(GetCursorPosX() + c_menu::get().dpi_scale * 3.f);
+    SetCursorPosX(GetCursorPosX() + 3.f);
 
     ImGuiContext& g = *GImGui;
     const ImGuiStyle& style = g.Style;
     const ImGuiID id = window->GetID(label);
-    const float w = CalcItemWidth() - c_menu::get().dpi_scale * 3.f;
+    const float w = CalcItemWidth() - 3.f;
 
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos + ImVec2(0, 11 * c_menu::get().dpi_scale), window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y*2.0f * 0.5f));
+    const ImRect frame_bb(window->DC.CursorPos + ImVec2(0, 11), window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y*2.0f * 0.5f));
     const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0));
 
-    ItemSize(ImRect(total_bb.Min - ImVec2(0, 22 * c_menu::get().dpi_scale), total_bb.Max), style.FramePadding.y);
-    if (!ItemAdd(ImRect(total_bb.Min - ImVec2(0, 22 * c_menu::get().dpi_scale), total_bb.Max), id, &frame_bb))
+    ItemSize(ImRect(total_bb.Min - ImVec2(0, 22), total_bb.Max), style.FramePadding.y);
+    if (!ItemAdd(ImRect(total_bb.Min - ImVec2(0, 22), total_bb.Max), id, &frame_bb))
         return false;
 
     // Default format string when passing NULL
@@ -3812,7 +3811,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     // Draw frame
    
     const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : g.HoveredId == id ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
-    const ImVec4 hover_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 hover_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 hover_dis = ImVec4(74 / 255.f, 79 / 255.f, 143 / 255.f, 1.f);
     const ImVec4 hover_off = ImVec4(74 / 255.f, 79 / 255.f, 143 / 255.f, 0.4f);
 
@@ -3971,7 +3970,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
 
     // Render grab
     if (grab_bb.Max.x > grab_bb.Min.x)
-        window->DrawList->AddCircleFilled(ImVec2(math::clamp(grab_bb.Min.x + ((grab_bb.Max.x - grab_bb.Min.x) / 2), frame_bb.Min.x + ((grab_bb.Max.x - grab_bb.Min.x)), frame_bb.Max.x - ((grab_bb.Max.x - grab_bb.Min.x))), (grab_bb.Min.y + ((grab_bb.Max.y - grab_bb.Min.y) / 2))), (grab_bb.Max.y - grab_bb.Min.y) * (1.35f / min(c_menu::get().dpi_scale, 1.55f)), GetColorU32(it_grab->second), 40);
+        window->DrawList->AddCircleFilled(ImVec2(math::clamp(grab_bb.Min.x + ((grab_bb.Max.x - grab_bb.Min.x) / 2), frame_bb.Min.x + ((grab_bb.Max.x - grab_bb.Min.x)), frame_bb.Max.x - ((grab_bb.Max.x - grab_bb.Min.x))), (grab_bb.Min.y + ((grab_bb.Max.y - grab_bb.Min.y) / 2))), (grab_bb.Max.y - grab_bb.Min.y) * 1.35f, GetColorU32(it_grab->second), 40);
 
     // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
     char value_buf[64];
@@ -3983,10 +3982,10 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
         value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), "%s", value_damage.c_str());
     }
 
-    RenderTextClipped(ImVec2(frame_bb.Max.x - CalcTextSize(value_buf).x, frame_bb.Min.y - CalcTextSize(value_buf).y - (4 * c_menu::get().dpi_scale)), frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.0f,0.0f));
+    RenderTextClipped(ImVec2(frame_bb.Max.x - CalcTextSize(value_buf).x, frame_bb.Min.y - CalcTextSize(value_buf).y - 4), frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.0f,0.0f));
 
     if (label_size.x > 0.0f)
-        RenderText(ImVec2(frame_bb.Min.x, frame_bb.Min.y - CalcTextSize(label).y - (4 * c_menu::get().dpi_scale)), label);
+        RenderText(ImVec2(frame_bb.Min.x, frame_bb.Min.y - CalcTextSize(label).y - 4), label);
 
     if (g_cfg.scripts.developer_mode && ImGui::IsItemHovered())
     {
@@ -5012,7 +5011,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     }
 
     // Release focus when we click outside
-    if (g.ActiveId == id && io.MouseClicked[0] && !init_state && !init_make_active) //-V560
+    if (g.ActiveId == id && io.MouseClicked[0] && !init_state && !init_make_active)
         clear_active_id = true;
 
     // Lock the decision of whether we are going to take the path displaying the cursor or selection
@@ -5672,7 +5671,7 @@ bool ImGui::ColorEdit(const char* label, Color* newcolor, ImGuiColorEditFlags fl
     if (window->SkipItems)
         return false;
 
-    ImGui::SetCursorPosX(ImGui::GetWindowSize().x - (ImGui::GetWindowSize().x - ImGui::CalcItemWidth()) - 24 * c_menu::get().dpi_scale);
+    ImGui::SetCursorPosX(ImGui::GetWindowSize().x - (ImGui::GetWindowSize().x - ImGui::CalcItemWidth()) - 24);
 
     ImGuiContext& g = *GImGui;
     const ImGuiStyle& style = g.Style;
@@ -5845,7 +5844,7 @@ bool ImGui::ColorEdit(const char* label, Color* newcolor, ImGuiColorEditFlags fl
         window->DC.CursorPos = ImVec2(pos.x + button_offset_x, pos.y);
 
         const ImVec4 col_v4(colors[config_name][0], colors[config_name][1], colors[config_name][2], alpha ? colors[config_name][3] : 1.0f);
-        if (ColorButton("##ColorButton", col_v4, flags, ImVec2(24 * c_menu::get().dpi_scale, 17 * c_menu::get().dpi_scale)))
+        if (ColorButton("##ColorButton", col_v4, flags, ImVec2(24, 17)))
         {
             if (!(flags & ImGuiColorEditFlags_NoPicker))
             {
@@ -5967,7 +5966,7 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
     if (window->SkipItems)
         return false;
 
-    SetCursorPosY(GetCursorPosY() - 2 * c_menu::get().dpi_scale);
+    SetCursorPosY(GetCursorPosY() - 2);
 
     ImGuiContext& g = *GImGui;
     const ImGuiStyle& style = g.Style;
@@ -6400,7 +6399,7 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
             Text("Current");*/
         Spacing();
         
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 4 * c_menu::get().dpi_scale);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 4);
         ImGuiColorEditFlags sub_flags_to_forward = ImGuiColorEditFlags__InputMask | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf | ImGuiColorEditFlags_NoTooltip;
         ColorButton("##current", col_v4, (flags & sub_flags_to_forward), ImVec2(square_sz * 3, square_sz * 2));
         ImGui::SameLine();
@@ -7131,7 +7130,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
         SetItemAllowOverlap();
 
     // In this branch, TreeNodeBehavior() cannot toggle the selection so this will never trigger.
-    if (selected != was_selected) //-V547
+    if (selected != was_selected)
         window->DC.LastItemStatusFlags |= ImGuiItemStatusFlags_ToggledSelection;
 
     // Render
@@ -7401,10 +7400,10 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
         SetItemAllowOverlap();
 
     // In this branch, Selectable() cannot toggle the selection so this will never trigger.
-    if (selected != was_selected) //-V547
+    if (selected != was_selected)
         window->DC.LastItemStatusFlags |= ImGuiItemStatusFlags_ToggledSelection;
 
-    const ImVec4 text_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 text_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 text_hov = ImVec4(251 / 255.f, 251 / 255.f, 251 / 255.f, 1.f);
     const ImVec4 text_dis = ImVec4(202 / 255.f, 202 / 255.f, 202 / 255.f, 1.f);
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
@@ -7483,7 +7482,7 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
     RenderTextClipped(text_min, text_max, label, NULL, &label_size, ImVec2(0.f, 0.5f), &bb_enlarged);
     PopStyleColor();
 
-    ImGui::SetWindowFontScale(c_menu::get().dpi_scale);
+    ImGui::SetWindowFontScale(1.f);
 
     // Automatically close popups
     if (pressed && (window->Flags & ImGuiWindowFlags_Popup) && !(flags & ImGuiSelectableFlags_DontClosePopups) && !(window->DC.ItemFlags & ImGuiItemFlags_SelectableDontClosePopup))
@@ -7587,10 +7586,10 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
         SetItemAllowOverlap();
 
     // In this branch, Selectable() cannot toggle the selection so this will never trigger.
-    if (selected != was_selected) //-V547
+    if (selected != was_selected)
         window->DC.LastItemStatusFlags |= ImGuiItemStatusFlags_ToggledSelection;
 
-    const ImVec4 text_act = ImVec4(126 / 255.f, 131 / 255.f, 219 / 255.f, 1.f);
+    const ImVec4 text_act = ImVec4(89 / 255.f, 119 / 255.f, 239 / 255.f, 1.f);
     const ImVec4 text_hov = ImVec4(251 / 255.f, 251 / 255.f, 251 / 255.f, 1.f);
     const ImVec4 text_dis = ImVec4(202 / 255.f, 202 / 255.f, 202 / 255.f, 1.f);
     float deltatime = 1.5f * ImGui::GetIO().DeltaTime;
@@ -7669,7 +7668,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     RenderTextClipped(text_min, text_max, label, NULL, &label_size, style.SelectableTextAlign, &bb_enlarged);
     PopStyleColor();
 
-    ImGui::SetWindowFontScale(c_menu::get().dpi_scale);
+    ImGui::SetWindowFontScale(1.f);
 
     // Automatically close popups
     if (pressed && (window->Flags & ImGuiWindowFlags_Popup) && !(flags & ImGuiSelectableFlags_DontClosePopups) && !(window->DC.ItemFlags & ImGuiItemFlags_SelectableDontClosePopup))

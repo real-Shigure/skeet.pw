@@ -51,7 +51,7 @@ class ProtectGuard
 {
 public:
 
-	ProtectGuard(void *base, uint32_t len, uint32_t protect) //-V688
+	ProtectGuard(void *base, uint32_t len, uint32_t protect)
 	{
 		this->base = base;
 		this->len = len;

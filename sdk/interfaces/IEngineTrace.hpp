@@ -136,13 +136,13 @@ public:
 //-----------------------------------------------------------------------------
 
 // This is the one most normal traces will inherit from
-class CTraceFilter : public ITraceFilter //-V730
+class CTraceFilter : public ITraceFilter
 {
 public:
     bool ShouldHitEntity(IHandleEntity * pEntityHandle, int /*contentsMask*/)
     {
 		ClientClass* eCC = ((IClientEntity*)pEntityHandle)->GetClientClass();
-		if (eCC && strcmp(ccIgnore, "")) //-V526
+		if (eCC && strcmp(ccIgnore, ""))
 		{
 			if (eCC->m_pNetworkName == ccIgnore)
 				return false;
@@ -357,12 +357,12 @@ struct Ray_t
     bool m_IsRay;  // are the extents zero?
     bool m_IsSwept;     // is delta != 0?
 
-    Ray_t() : m_pWorldAxisTransform(NULL) {} //-V730
+    Ray_t() : m_pWorldAxisTransform(NULL) {}
 
-	Ray_t( Vector const & start, Vector const & end ) { //-V818
+	Ray_t( Vector const & start, Vector const & end ) {
 		m_Delta = end - start;
 
-		m_IsSwept = ( m_Delta.LengthSqr( ) != 0 ); //-V550
+		m_IsSwept = ( m_Delta.LengthSqr( ) != 0 );
 
 		m_Extents.Init( );
 
@@ -378,7 +378,7 @@ struct Ray_t
     {
         m_Delta = end - start;
 
-        m_IsSwept = (m_Delta.LengthSqr() != 0); //-V550
+        m_IsSwept = (m_Delta.LengthSqr() != 0);
 
         m_Extents.Init();
 
@@ -395,7 +395,7 @@ struct Ray_t
         m_Delta = end - start;
 
         m_pWorldAxisTransform = NULL;
-        m_IsSwept = (m_Delta.LengthSqr() != 0); //-V550
+        m_IsSwept = (m_Delta.LengthSqr() != 0);
 
         m_Extents = maxs - mins;
         m_Extents *= 0.5f;
@@ -411,7 +411,7 @@ struct Ray_t
     {
         Vector vecInvDelta;
         for(int iAxis = 0; iAxis < 3; ++iAxis) {
-            if(m_Delta[iAxis] != 0.0f) { //-V550
+            if(m_Delta[iAxis] != 0.0f) {
                 vecInvDelta[iAxis] = 1.0f / m_Delta[iAxis];
             } else {
                 vecInvDelta[iAxis] = FLT_MAX;
@@ -447,7 +447,7 @@ public:
     bool           allsolid;            // if true, plane is not valid
     bool           startsolid;          // if true, the initial point was in a solid area
 
-    CBaseTrace() {} //-V730
+    CBaseTrace() {}
 
 };
 
@@ -473,7 +473,7 @@ public:
     IClientEntity*      hit_entity;
     int                 hitbox;                       // box hit by trace in studio
 
-    CGameTrace() {} //-V730
+    CGameTrace() {}
 
 private:
     // No copy constructors allowed

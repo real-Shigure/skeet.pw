@@ -3,7 +3,7 @@
 #include "..\includes.hpp"
 #include "..\sdk\math\Vector.hpp"
 #include "..\sdk\misc\CUserCmd.hpp"
-#include "..\..\utils\crypt_str.h"
+#include "..\utils\crypt_str.h"
 
 class entity_t;
 class player_t;
@@ -50,7 +50,7 @@ namespace util
 	bool get_bbox(entity_t* e, Box & box, bool player_esp);
 	void trace_line(Vector& start, Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* tr);
 	void clip_trace_to_players(IClientEntity* e, const Vector& start, const Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* tr);
-	void movement_fix(Vector & wish_angle, CUserCmd * m_pcmd);
+	void movement_fix(CUserCmd * m_pcmd);
 	unsigned int find_in_datamap(datamap_t * map, const char *name);
 	void color_modulate(float color[3], IMaterial* material);
 	bool get_backtrack_matrix(player_t* e, matrix3x4_t* matrix);
@@ -86,9 +86,9 @@ namespace util
 		DWORD OldProtect;
 		Type fnOld = (Type)vftable[index]; //-V108 //-V202
 
-		VirtualProtect((void*)(vftable + index * sizeof(Type)), sizeof(Type), PAGE_EXECUTE_READWRITE, &OldProtect); //-V2001 //-V104 //-V206
+		VirtualProtect((void*)(vftable + index * sizeof(Type)), sizeof(Type), PAGE_EXECUTE_READWRITE, &OldProtect); //-V2001 //-V104
 		vftable[index] = (uintptr_t)fnNew; //-V108
-		VirtualProtect((void*)(vftable + index * sizeof(Type)), sizeof(Type), OldProtect, &OldProtect); //-V2001 //-V104 //-V206
+		VirtualProtect((void*)(vftable + index * sizeof(Type)), sizeof(Type), OldProtect, &OldProtect); //-V2001 //-V104
 
 		return fnOld;
 	}

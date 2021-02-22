@@ -1,7 +1,7 @@
 #pragma once
 
-#pragma comment(lib, "Lua.lib")
-#pragma comment(lib, "lua53.lib")
+//#pragma comment(lib, "Lua.lib")
+//#pragma comment(lib, "lua51.lib")
 //#pragma comment(lib, "luajit.lib")
 
 #include "CLuaHook.h"

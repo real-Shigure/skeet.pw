@@ -255,7 +255,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
         //-----------------------------------------------------------------------------
         // constructors
         //-----------------------------------------------------------------------------
-        CUtlBuffer::CUtlBuffer(int growSize, int initSize, int nFlags) : //-V730
+        CUtlBuffer::CUtlBuffer(int growSize, int initSize, int nFlags) :
             m_Memory(growSize, initSize), m_Error(0)
         {
             m_Get = 0;
@@ -272,7 +272,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
             SetOverflowFuncs(&CUtlBuffer::GetOverflow, &CUtlBuffer::PutOverflow);
         }
 
-        CUtlBuffer::CUtlBuffer(const void *pBuffer, int nSize, int nFlags) : //-V730
+        CUtlBuffer::CUtlBuffer(const void *pBuffer, int nSize, int nFlags) :
             m_Memory((unsigned char*)pBuffer, nSize), m_Error(0)
         {
             assert(nSize != 0);
@@ -1342,7 +1342,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
 
             int nLen = pString ? strlen(pString) : 0;
             for(int i = 0; i < nLen; ++i) {
-                PutDelimitedCharInternal(pConv, pString[i]); //-V1004
+                PutDelimitedCharInternal(pConv, pString[i]);
             }
 
             if(WasLastCharacterCR()) {

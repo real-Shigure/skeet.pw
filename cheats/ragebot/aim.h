@@ -18,7 +18,7 @@ public:
 		history_record = nullptr;
 	}
 
-	target(player_t* e, adjust_data* last_record, adjust_data* history_record) //-V818
+	target(player_t* e, adjust_data* last_record, adjust_data* history_record)
 	{
 		this->e = e;
 
@@ -33,17 +33,17 @@ public:
 	Vector point;
 	int hitbox;
 	bool center;
-	float safe;
+	bool safe;
 
 	scan_point()
 	{
 		point.Zero();
 		hitbox = -1;
 		center = false;
-		safe = 0.0f; 
+		safe = false;
 	}
 
-	scan_point(const Vector& point, const int& hitbox, const bool& center) //-V818 //-V730
+	scan_point(const Vector& point, const int& hitbox, const bool& center)
 	{
 		this->point = point;
 		this->hitbox = hitbox;
@@ -55,7 +55,7 @@ public:
 		point.Zero();
 		hitbox = -1;
 		center = false;
-		safe = 0.0f;
+		safe = false;
 	}
 };
 
@@ -108,7 +108,7 @@ public:
 		reset();
 	}
 
-	scanned_target(const scanned_target& data) //-V688
+	scanned_target(const scanned_target& data)
 	{
 		this->record = data.record;
 		this->data = data.data;
@@ -117,7 +117,7 @@ public:
 		this->health = data.health;
 	}
 
-	scanned_target& operator=(const scanned_target& data) //-V688
+	scanned_target& operator=(const scanned_target& data)
 	{
 		this->record = data.record;
 		this->data = data.data;
@@ -128,7 +128,7 @@ public:
 		return *this;
 	}
 
-	scanned_target(adjust_data* record, const scan_data& data) //-V688 //-V818
+	scanned_target(adjust_data* record, const scan_data& data)
 	{
 		this->record = record;
 		this->data = data;
@@ -136,8 +136,8 @@ public:
 		Vector viewangles;
 		m_engine()->GetViewAngles(viewangles);
 
-		auto aim_angle = math::calculate_angle(g_ctx.globals.eye_pos, data.point.point); //-V688
-		auto fov = math::get_fov(viewangles, aim_angle); //-V688
+		auto aim_angle = math::calculate_angle(g_ctx.globals.eye_pos, data.point.point);
+		auto fov = math::get_fov(viewangles, aim_angle);
 
 		this->fov = fov;
 		this->distance = g_ctx.globals.eye_pos.DistTo(data.point.point);
@@ -165,16 +165,16 @@ class aim : public singleton <aim>
 	bool automatic_stop(CUserCmd* cmd);
 	void find_best_target();
 	void fire(CUserCmd* cmd);
-	int hitchance(const Vector& aim_angle);
+	int calculate_hitchance(const Vector& aim_angle);
 
 	std::vector <scanned_target> scanned_targets;
 	scanned_target final_target;
 public:
 	void run(CUserCmd* cmd);
-	void scan(adjust_data* record, scan_data& data, const Vector& shoot_position = g_ctx.globals.eye_pos, bool optimized = false);
-	std::vector <int> get_hitboxes(adjust_data* record, bool optimized = false);
+	void scan(adjust_data* record, scan_data& data, const Vector& shoot_position = g_ctx.globals.eye_pos);
+	std::vector <int> get_hitboxes(adjust_data* record);
 	std::vector <scan_point> get_points(adjust_data* record, int hitbox, bool from_aim = true);
-	bool hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, const Vector& start, const Vector& end, float* safe = nullptr);
+	bool hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, const Vector& start, const Vector& end);
 
 	std::vector <target> targets;
 	std::vector <adjust_data> backup;

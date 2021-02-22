@@ -84,9 +84,9 @@ public:
 		type = CHECK_BOX;
 	}
 
-	menu_item(std::vector <std::string> labels, int value) //-V818
+	menu_item(std::vector <std::string> labels, int value)
 	{
-		combo_box_labels = labels; //-V820
+		combo_box_labels = labels;
 		combo_box_value = value;
 
 		type = COMBO_BOX;
@@ -110,7 +110,7 @@ public:
 		type = SLIDER_FLOAT;
 	}
 
-	menu_item(Color value) //-V818
+	menu_item(Color value)
 	{
 		color_picker_value = value;
 		type = COLOR_PICKER;

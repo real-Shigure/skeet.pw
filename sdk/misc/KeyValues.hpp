@@ -78,7 +78,7 @@ public:
 	//	understand the implications before using this.
 	static void SetUseGrowableStringTable(bool bUseGrowableTable);
 
-	explicit KeyValues(const char* setName) //-V730
+	explicit KeyValues(const char* setName)
 	{
 
 	}

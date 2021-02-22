@@ -23,7 +23,7 @@ private:
 	{
 		if (!szBefore.empty() && !szSource.empty() && (szSource.find(szBefore) != std::string::npos))
 		{
-			std::string t = strstr(szSource.c_str(), szBefore.c_str()); //-V522
+			std::string t = strstr(szSource.c_str(), szBefore.c_str());
 			t.erase(0, szBefore.length());
 			size_t firstLoc = t.find('\"', 0);
 			size_t secondLoc = t.find('\"', firstLoc + 1);
@@ -87,7 +87,7 @@ private:
 
 		ImGui::Begin("##radar", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar);
 
-		if (ImGui::GetWindowSize().x != ImGui::GetWindowSize().y) //-V550
+		if (ImGui::GetWindowSize().x != ImGui::GetWindowSize().y)
 			ImGui::SetWindowSize(ImGui::GetWindowSize().x > ImGui::GetWindowSize().y ? ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().x) : ImVec2(ImGui::GetWindowSize().y, ImGui::GetWindowSize().y));
 
 

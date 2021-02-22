@@ -7,7 +7,7 @@ void worldesp::paint_traverse()
 {
 	skybox_changer();
 
-	for (int i = 1; i <= m_entitylist()->GetHighestEntityIndex(); i++)  //-V807
+	for (int i = 1; i <= m_entitylist()->GetHighestEntityIndex(); i++) 
 	{
 		auto e = static_cast<entity_t*>(m_entitylist()->GetClientEntity(i));
 
@@ -59,7 +59,7 @@ void worldesp::paint_traverse()
 		default:
 			grenade_projectiles(e);
 
-			if (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor) //-V648
+			if (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor)
 				dropped_weapons(e);
 
 			break;
@@ -194,7 +194,7 @@ void worldesp::skybox_changer()
 
 void worldesp::fog_changer()
 {
-	static auto fog_override = m_cvar()->FindVar(crypt_str("fog_override")); //-V807
+	static auto fog_override = m_cvar()->FindVar(crypt_str("fog_override"));
 
 	if (!g_cfg.esp.fog)
 	{
@@ -219,7 +219,7 @@ void worldesp::fog_changer()
 
 	static auto fog_maxdensity = m_cvar()->FindVar(crypt_str("fog_maxdensity"));
 
-	if (fog_maxdensity->GetFloat() != (float)g_cfg.esp.fog_density * 0.01f) //-V550
+	if (fog_maxdensity->GetFloat() != (float)g_cfg.esp.fog_density * 0.01f)
 		fog_maxdensity->SetValue((float)g_cfg.esp.fog_density * 0.01f);
 
 	char buffer_color[12];
@@ -227,7 +227,7 @@ void worldesp::fog_changer()
 
 	static auto fog_color = m_cvar()->FindVar(crypt_str("fog_color"));
 
-	if (strcmp(fog_color->GetString(), buffer_color)) //-V526
+	if (strcmp(fog_color->GetString(), buffer_color))
 		fog_color->SetValue(buffer_color);
 }
 

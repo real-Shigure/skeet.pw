@@ -36,7 +36,7 @@ class CUserCmd
 public:
 	CUserCmd()
 	{
-		memset(this, NULL, sizeof(*this)); //-V598
+		memset(this, NULL, sizeof(*this));
 	};
 
 	virtual ~CUserCmd()

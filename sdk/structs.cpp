@@ -16,7 +16,7 @@ datamap_t* entity_t::GetPredDescMap()
 
 bool entity_t::is_player()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	auto client_class = GetClientClass();
@@ -29,7 +29,7 @@ bool entity_t::is_player()
 
 void entity_t::set_model_index(int index)
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	using Fn = void(__thiscall*)(PVOID, int);
@@ -38,7 +38,7 @@ void entity_t::set_model_index(int index)
 
 void entity_t::set_abs_angles(const Vector& angle)
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	using Fn = void(__thiscall*)(void*, const Vector&);
@@ -49,7 +49,7 @@ void entity_t::set_abs_angles(const Vector& angle)
 
 void entity_t::set_abs_origin(const Vector& origin)
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	using Fn = void(__thiscall*)(void*, const Vector&);
@@ -60,7 +60,7 @@ void entity_t::set_abs_origin(const Vector& origin)
 
 weapon_info_t* weapon_t::get_csweapon_info()
 {
-	if (!this) //-V704
+	if (!this)
 		return nullptr;
 
 	using Fn = weapon_info_t * (__thiscall*)(void*);
@@ -69,7 +69,7 @@ weapon_info_t* weapon_t::get_csweapon_info()
 
 float weapon_t::get_inaccuracy()
 {
-	if (!this) //-V704
+	if (!this)
 		return 0.0f;
 
 	return call_virtual<float(__thiscall*)(void*)>(this, g_ctx.indexes.at(9))(this);
@@ -77,7 +77,7 @@ float weapon_t::get_inaccuracy()
 
 float weapon_t::get_spread()
 {
-	if (!this) //-V704
+	if (!this)
 		return 0.0f;
 
 	return call_virtual<float(__thiscall*)(void*)>(this, g_ctx.indexes.at(10))(this);
@@ -85,7 +85,7 @@ float weapon_t::get_spread()
 
 void weapon_t::update_accuracy_penality()
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	call_virtual<void(__thiscall*)(void*)>(this, g_ctx.indexes.at(11))(this);
@@ -93,7 +93,7 @@ void weapon_t::update_accuracy_penality()
 
 bool weapon_t::is_empty()
 {
-	if (!this) //-V704
+	if (!this)
 		return true;
 
 	return m_iClip1() <= 0;
@@ -101,7 +101,7 @@ bool weapon_t::is_empty()
 
 bool weapon_t::can_fire(bool check_revolver)
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	if (!is_non_aim() && is_empty())
@@ -134,7 +134,7 @@ bool weapon_t::can_fire(bool check_revolver)
 
 int weapon_t::get_weapon_group(bool rage)
 {
-	if (!this) //-V704
+	if (!this)
 		return -1;
 
 	if (rage)
@@ -177,7 +177,7 @@ int weapon_t::get_weapon_group(bool rage)
 
 bool weapon_t::is_rifle()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int weapon_id = m_iItemDefinitionIndex();
@@ -188,7 +188,7 @@ bool weapon_t::is_rifle()
 
 bool weapon_t::is_smg()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int weapon_id = m_iItemDefinitionIndex();
@@ -199,7 +199,7 @@ bool weapon_t::is_smg()
 
 bool weapon_t::is_shotgun()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int weapon_id = m_iItemDefinitionIndex();
@@ -209,7 +209,7 @@ bool weapon_t::is_shotgun()
 
 bool weapon_t::is_pistol()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int weapon_id = m_iItemDefinitionIndex();
@@ -220,7 +220,7 @@ bool weapon_t::is_pistol()
 
 bool weapon_t::is_sniper()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int weapon_id = m_iItemDefinitionIndex();
@@ -230,7 +230,7 @@ bool weapon_t::is_sniper()
 
 bool weapon_t::is_grenade()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int idx = m_iItemDefinitionIndex();
@@ -240,7 +240,7 @@ bool weapon_t::is_grenade()
 
 bool weapon_t::is_knife()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	int idx = m_iItemDefinitionIndex();
@@ -255,7 +255,7 @@ bool weapon_t::is_knife()
 
 bool weapon_t::is_non_aim()
 {
-	if (!this) //-V704
+	if (!this)
 		return true;
 
 	auto idx = m_iItemDefinitionIndex();
@@ -274,7 +274,7 @@ bool weapon_t::is_non_aim()
 
 bool weapon_t::can_double_tap()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	if (is_non_aim())
@@ -288,68 +288,9 @@ bool weapon_t::can_double_tap()
 	return true;
 }
 
-int weapon_t::get_max_tickbase_shift()
-{
-	if (!can_double_tap())
-		return m_gamerules()->m_bIsValveDS() ? 6 : 16;
-
-	auto idx = m_iItemDefinitionIndex();
-	auto max_tickbase_shift = 0;
-
-	switch (idx)
-	{
-	case WEAPON_M249:
-	case WEAPON_MAC10:
-	case WEAPON_P90:
-	case WEAPON_MP5SD:
-	case WEAPON_NEGEV:
-	case WEAPON_MP9:
-		max_tickbase_shift = 5;
-		break;
-	case WEAPON_ELITE:
-	case WEAPON_UMP45:
-	case WEAPON_BIZON:
-	case WEAPON_TEC9:
-	case WEAPON_MP7:
-		max_tickbase_shift = 6;
-		break;
-	case WEAPON_AK47:
-	case WEAPON_AUG:
-	case WEAPON_FAMAS:
-	case WEAPON_GALILAR:
-	case WEAPON_M4A1:
-	case WEAPON_M4A1_SILENCER:
-	case WEAPON_CZ75A:
-		max_tickbase_shift = 7;
-		break;
-	case WEAPON_FIVESEVEN:
-	case WEAPON_GLOCK:
-	case WEAPON_P250:
-	case WEAPON_SG553:
-		max_tickbase_shift = 8;
-		break;
-	case WEAPON_HKP2000:
-	case WEAPON_USP_SILENCER:
-		max_tickbase_shift = 9;
-		break;
-	case WEAPON_DEAGLE:
-		max_tickbase_shift = 13;
-		break;
-	case WEAPON_G3SG1:
-	case WEAPON_SCAR20:
-		max_tickbase_shift = 14;
-		break;
-	}
-
-	if (m_gamerules()->m_bIsValveDS())
-		max_tickbase_shift = min(max_tickbase_shift, 6);
-
-	return max_tickbase_shift;
-}
-
 char* weapon_t::get_icon()
 {
-	if (!this) //-V704
+	if (!this)
 		return " ";
 
 	switch (m_iItemDefinitionIndex())
@@ -463,7 +404,7 @@ char* weapon_t::get_icon()
 
 std::string weapon_t::get_name()
 {
-	if (!this) //-V704
+	if (!this)
 		return " ";
 
 	switch (m_iItemDefinitionIndex())
@@ -587,12 +528,12 @@ std::array <float, 24>& entity_t::m_flPoseParameter()
 
 Vector player_t::get_shoot_position()
 {
-	if (!this) //-V704
+	if (!this)
 		return ZERO;
 
 	auto shoot_position = m_vecOrigin() + m_vecViewOffset();
 
-	if (this != g_ctx.local()) //-V648
+	if (this != g_ctx.local())
 		return shoot_position;
 
 	modify_eye_position(shoot_position);
@@ -628,7 +569,7 @@ void player_t::modify_eye_position(Vector& eye_position)
 
 bool player_t::is_alive()
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	if (m_iTeamNum() != 2 && m_iTeamNum() != 3)
@@ -642,7 +583,7 @@ bool player_t::is_alive()
 
 int	player_t::get_move_type()
 {
-	if (!this) //-V704
+	if (!this)
 		return 0;
 
 	return *(int*)((uintptr_t)this + 0x25C);
@@ -650,7 +591,7 @@ int	player_t::get_move_type()
 
 int player_t::get_hitbox_bone_id(int hitbox_id)
 {
-	if (!this) //-V704
+	if (!this)
 		return -1;
 
 	auto hdr = m_modelinfo()->GetStudioModel(GetModel());
@@ -673,7 +614,7 @@ int player_t::get_hitbox_bone_id(int hitbox_id)
 
 Vector player_t::hitbox_position(int hitbox_id)
 {
-	if (!this) //-V704
+	if (!this)
 		return ZERO;
 
 	auto hdr = m_modelinfo()->GetStudioModel(GetModel());
@@ -701,7 +642,7 @@ Vector player_t::hitbox_position(int hitbox_id)
 
 Vector player_t::hitbox_position_matrix(int hitbox_id, matrix3x4_t matrix[MAXSTUDIOBONES])
 {
-	if (!this) //-V704
+	if (!this)
 		return ZERO;
 
 	auto hdr = m_modelinfo()->GetStudioModel(GetModel());
@@ -743,7 +684,7 @@ CBoneAccessor& player_t::m_BoneAccessor()
 
 void player_t::invalidate_bone_cache()
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	m_flLastBoneSetupTime() = -FLT_MAX;
@@ -752,7 +693,7 @@ void player_t::invalidate_bone_cache()
 
 void player_t::set_abs_velocity(const Vector& velocity)
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	using Fn = void(__thiscall*)(void*, const Vector&);
@@ -763,7 +704,7 @@ void player_t::set_abs_velocity(const Vector& velocity)
 
 Vector player_t::get_render_angles()
 {
-	if (!this) //-V704
+	if (!this)
 		return ZERO;
 
 	return *(Vector*)((uintptr_t)this + 0x31D8);
@@ -771,7 +712,7 @@ Vector player_t::get_render_angles()
 
 void player_t::set_render_angles(const Vector& angles)
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	*(Vector*)((uintptr_t)this + 0x31D8) = angles;
@@ -779,7 +720,7 @@ void player_t::set_render_angles(const Vector& angles)
 
 void player_t::update_clientside_animation()
 {
-	if (!this) //-V704
+	if (!this)
 		return;
 
 	auto animstate = get_animation_state();
@@ -835,7 +776,7 @@ VarMapping_t* player_t::var_mapping()
 
 bool player_t::valid(bool check_team, bool check_dormant)
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	if (!g_ctx.local())
@@ -858,7 +799,7 @@ bool player_t::valid(bool check_team, bool check_dormant)
 
 int player_t::animlayer_count()
 {
-	if (!this) //-V704
+	if (!this)
 		return 0;
 
 	return *(int*)((DWORD)this + 0x298C);
@@ -871,7 +812,7 @@ AnimationLayer* player_t::get_animlayers()
 
 int player_t::sequence_activity(int sequence)
 {
-	if (!this) //-V704
+	if (!this)
 		return 0;
 
 	auto hdr = m_modelinfo()->GetStudioModel(this->GetModel());
@@ -896,7 +837,7 @@ CStudioHdr* player_t::m_pStudioHdr()
 
 bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int mask)
 {
-	if (!this) //-V704
+	if (!this)
 		return false;
 
 	auto setuped = false;
@@ -921,7 +862,6 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int mask)
 	g_ctx.globals.setuping_bones = true;
 	invalidate_bone_cache();
 
-#if RELEASE
 	if (mask == BONE_USED_BY_ANYTHING)
 		SetupBones(matrix, MAXSTUDIOBONES, mask, m_flSimulationTime());
 	else
@@ -960,9 +900,9 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int mask)
 
 		setup_bones.fix_bones_rotations();
 	}
-#else
-	SetupBones(matrix, matrix ? MAXSTUDIOBONES : -1, mask, m_flSimulationTime());
-#endif
+
+	// note: simv0l - why lol?
+	//SetupBones(matrix, matrix ? MAXSTUDIOBONES : -1, mask, m_flSimulationTime());
 
 	g_ctx.globals.setuping_bones = false;
 
@@ -998,7 +938,7 @@ float& player_t::m_surfaceFriction()
 
 Vector& player_t::m_vecAbsVelocity()
 {
-	if (!this) //-V704
+	if (!this)
 		return ZERO;
 
 	static auto m_vecAbsVelocity = util::find_in_datamap(GetPredDescMap(), crypt_str("m_vecAbsVelocity"));
@@ -1007,7 +947,7 @@ Vector& player_t::m_vecAbsVelocity()
 
 float player_t::get_max_desync_delta()
 {
-	if (!this) //-V704
+	if (!this)
 		return 0.0f;
 
 	auto animstate = get_animation_state();
@@ -1020,7 +960,7 @@ float player_t::get_max_desync_delta()
 
 	auto duck_amount = animstate->m_fDuckAmount;
 
-	if (duck_amount) //-V550
+	if (duck_amount)
 	{
 		auto max_velocity = math::clamp(animstate->m_flFeetSpeedUnknownForwardOrSideways, 0.0f, 1.0f);
 		auto duck_speed = duck_amount * max_velocity;

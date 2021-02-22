@@ -8,25 +8,15 @@
 #include "prediction_system.h"
 #include "logs.h"
 
-#if RELEASE
-#if BETA
-#define VERSION crypt_str("Legendware [beta] | ")
-#else
-#define VERSION crypt_str("Legendware | ")
-#endif
-#else
-#define VERSION crypt_str("skeet.pw alpha ")
-#endif
-
 void misc::watermark()
 {
 	if (!g_cfg.menu.watermark)
 		return;
 
 	auto width = 0, height = 0;
-	m_engine()->GetScreenSize(width, height); //-V807
+	m_engine()->GetScreenSize(width, height);
 
-	auto watermark = VERSION + g_ctx.username + crypt_str(" | ") + g_ctx.globals.time;
+	auto watermark = crypt_str("skeet.idb | ") + g_ctx.username /*+ crypt_str(" | ")*/ + g_ctx.globals.time;
 
 	if (m_engine()->IsInGame())
 	{
@@ -37,26 +27,21 @@ void misc::watermark()
 			auto server = nci->GetAddress();
 
 			if (!strcmp(server, crypt_str("loopback")))
-				server = crypt_str("Local server");
+				server = crypt_str("local server");
 			else if (m_gamerules()->m_bIsValveDS())
-				server = crypt_str("Valve server");
+				server = crypt_str("valve server");
 
 			auto tickrate = std::to_string((int)(1.0f / m_globals()->m_intervalpertick));
-			watermark = VERSION + g_ctx.username + crypt_str(" | ") + server + crypt_str(" | ") + std::to_string(g_ctx.globals.ping) + crypt_str(" ms | ") + tickrate + crypt_str(" tick | ") + g_ctx.globals.time;
+			watermark = crypt_str("skeet.idb | ") + g_ctx.username /*+ crypt_str(" | ")*/ + server + crypt_str(" | ") + std::to_string(g_ctx.globals.ping) + crypt_str(" ms | ") + tickrate + crypt_str(" tick | ") + g_ctx.globals.time;
 		}
 	}
 
 	auto box_width = render::get().text_width(fonts[NAME], watermark.c_str()) + 10;
 
-	render::get().gradient(width - 10 - box_width, 10, box_width / 2, 1, Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 170), Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 240), GRADIENT_HORIZONTAL);
-	render::get().gradient(width - 10 - box_width + (box_width / 2), 10, box_width / 2, 1, Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 240), Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 170), GRADIENT_HORIZONTAL);
+	render::get().rect_filled(width - 10 - box_width, 10, box_width, 2, Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 255));
+	render::get().rect_filled(width - 10 - box_width, 11, box_width, 18, Color(17, 17, 17, 240));
 
-	render::get().rect_filled(width - 10 - box_width, 11, box_width, 18, Color(10, 10, 10, 150));
-
-	render::get().text(fonts[NAME], width - 10 - box_width + 5, 20, Color(255, 255, 255, 220), HFONT_CENTERED_Y, watermark.c_str());
-
-	render::get().gradient(width - 10 - box_width, 29, box_width / 2, 1, Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 170), Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 240), GRADIENT_HORIZONTAL);
-	render::get().gradient(width - 10 - box_width + (box_width / 2), 29, box_width / 2, 1, Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 240), Color(g_cfg.menu.menu_theme.r(), g_cfg.menu.menu_theme.g(), g_cfg.menu.menu_theme.b(), 170), GRADIENT_HORIZONTAL);
+	render::get().text(fonts[NAME], width - 10 - box_width + 5, 20, Color(255, 255, 255, 255), HFONT_CENTERED_Y, watermark.c_str());
 }
 
 void misc::NoDuck(CUserCmd* cmd)
@@ -68,32 +53,6 @@ void misc::NoDuck(CUserCmd* cmd)
 		return;
 
 	cmd->m_buttons |= IN_BULLRUSH;
-}
-
-void misc::ChatSpamer()
-{
-	if (!g_cfg.misc.chat)
-		return;
-
-	static std::string chatspam[] = 
-	{ 
-		crypt_str("skeet - stay with us or lose the game."),
-		crypt_str("Get good. nn what you a 2020"),
-		crypt_str("aimware one steep ahead of the game"),
-		crypt_str("Lol trash baim imagine"),
-	};
-
-	static auto lastspammed = 0;
-
-	if (GetTickCount() - lastspammed > 800)
-	{
-		lastspammed = GetTickCount();
-
-		srand(m_globals()->m_tickcount);
-		std::string msg = crypt_str("say ") + chatspam[rand() % 4];
-
-		m_engine()->ExecuteClientCmd(msg.c_str());
-	}
 }
 
 void misc::AutoCrouch(CUserCmd* cmd)
@@ -135,7 +94,7 @@ void misc::AutoCrouch(CUserCmd* cmd)
 
 void misc::SlideWalk(CUserCmd* cmd)
 {
-	if (!g_ctx.local()->is_alive()) //-V807
+	if (!g_ctx.local()->is_alive())
 		return;
 
 	if (g_ctx.local()->get_move_type() == MOVETYPE_LADDER)
@@ -189,7 +148,7 @@ void misc::SlideWalk(CUserCmd* cmd)
 		else
 			goto LABEL_18;
 
-		if (cmd->m_forwardmove <= 0.0f) //-V779
+		if (cmd->m_forwardmove <= 0.0f)
 			buttons |= IN_FORWARD;
 		else
 			buttons |= IN_BACK;
@@ -211,7 +170,7 @@ void misc::SlideWalk(CUserCmd* cmd)
 	}
 }
 
-void misc::automatic_peek(CUserCmd* cmd, float wish_yaw)
+void misc::automatic_peek(CUserCmd* cmd)
 {
 	if (!g_ctx.globals.weapon->is_non_aim() && key_binds::get().get_key_bind_state(18))
 	{
@@ -246,7 +205,7 @@ void misc::automatic_peek(CUserCmd* cmd, float wish_yaw)
 
 				if (difference.Length2D() > 5.0f)
 				{
-					auto velocity = Vector(difference.x * cos(wish_yaw / 180.0f * M_PI) + difference.y * sin(wish_yaw / 180.0f * M_PI), difference.y * cos(wish_yaw / 180.0f * M_PI) - difference.x * sin(wish_yaw / 180.0f * M_PI), difference.z);
+					auto velocity = Vector(difference.x * cos(g_ctx.globals.wish_angle.y / 180.0f * M_PI) + difference.y * sin(g_ctx.globals.wish_angle.y / 180.0f * M_PI), difference.y * cos(g_ctx.globals.wish_angle.y / 180.0f * M_PI) - difference.x * sin(g_ctx.globals.wish_angle.y / 180.0f * M_PI), difference.z);
 
 					cmd->m_forwardmove = -velocity.x * 20.0f;
 					cmd->m_sidemove = velocity.y * 20.0f;
@@ -273,7 +232,7 @@ void misc::ViewModel()
 		auto viewFOV = (float)g_cfg.esp.viewmodel_fov + 68.0f;
 		static auto viewFOVcvar = m_cvar()->FindVar(crypt_str("viewmodel_fov"));
 
-		if (viewFOVcvar->GetFloat() != viewFOV) //-V550
+		if (viewFOVcvar->GetFloat() != viewFOV)
 		{
 			*(float*)((DWORD)&viewFOVcvar->m_fnChangeCallbacks + 0xC) = 0.0f;
 			viewFOVcvar->SetValue(viewFOV);
@@ -283,9 +242,9 @@ void misc::ViewModel()
 	if (g_cfg.esp.viewmodel_x)
 	{
 		auto viewX = (float)g_cfg.esp.viewmodel_x / 2.0f;
-		static auto viewXcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_x")); //-V807
+		static auto viewXcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_x"));
 
-		if (viewXcvar->GetFloat() != viewX) //-V550
+		if (viewXcvar->GetFloat() != viewX)
 		{
 			*(float*)((DWORD)&viewXcvar->m_fnChangeCallbacks + 0xC) = 0.0f;
 			viewXcvar->SetValue(viewX);
@@ -297,7 +256,7 @@ void misc::ViewModel()
 		auto viewY = (float)g_cfg.esp.viewmodel_y / 2.0f;
 		static auto viewYcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_y"));
 
-		if (viewYcvar->GetFloat() != viewY) //-V550
+		if (viewYcvar->GetFloat() != viewY)
 		{
 			*(float*)((DWORD)&viewYcvar->m_fnChangeCallbacks + 0xC) = 0.0f;
 			viewYcvar->SetValue(viewY);
@@ -309,7 +268,7 @@ void misc::ViewModel()
 		auto viewZ = (float)g_cfg.esp.viewmodel_z / 2.0f;
 		static auto viewZcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_z"));
 
-		if (viewZcvar->GetFloat() != viewZ) //-V550
+		if (viewZcvar->GetFloat() != viewZ)
 		{
 			*(float*)((DWORD)&viewZcvar->m_fnChangeCallbacks + 0xC) = 0.0f;
 			viewZcvar->SetValue(viewZ);
@@ -373,36 +332,6 @@ void misc::PovArrows(player_t* e, Color color)
 
 	math::rotate_triangle(points, viewAngles.y - math::calculate_angle(g_ctx.globals.eye_pos, e->GetAbsOrigin()).y - 90.0f);
 	render::get().triangle(points.at(0), points.at(1), points.at(2), color);
-}
-
-void misc::zeus_range()
-{
-	if (!g_cfg.player.enable)
-		return;
-
-	if (!g_cfg.esp.taser_range)
-		return;
-
-	if (!m_input()->m_fCameraInThirdPerson)
-		return;
-
-	if (!g_ctx.local()->is_alive())  //-V807
-		return;
-
-	auto weapon = g_ctx.local()->m_hActiveWeapon().Get();
-
-	if (!weapon)
-		return;
-
-	if (weapon->m_iItemDefinitionIndex() != WEAPON_TASER)
-		return;
-
-	auto weapon_info = weapon->get_csweapon_info();
-
-	if (!weapon_info)
-		return;
-
-	render::get().Draw3DRainbowCircle(g_ctx.local()->get_shoot_position(), weapon_info->flRange);
 }
 
 void misc::NightmodeFix()
@@ -492,11 +421,23 @@ void misc::desync_arrows()
 	color.SetAlpha((int)(min(255.0f * alpha, color.a())));
 
 	if (antiaim::get().manual_side == SIDE_BACK)
+	{
 		render::get().triangle(Vector2D(width / 2, height / 2 + 80), Vector2D(width / 2 - 10, height / 2 + 60), Vector2D(width / 2 + 10, height / 2 + 60), color);
+		render::get().triangle(Vector2D(width / 2 - 55, height / 2 + 10), Vector2D(width / 2 - 75, height / 2), Vector2D(width / 2 - 55, height / 2 - 10), Color::White);
+		render::get().triangle(Vector2D(width / 2 + 55, height / 2 - 10), Vector2D(width / 2 + 75, height / 2), Vector2D(width / 2 + 55, height / 2 + 10), Color::White);
+	}
 	else if (antiaim::get().manual_side == SIDE_LEFT)
+	{
+		render::get().triangle(Vector2D(width / 2, height / 2 + 80), Vector2D(width / 2 - 10, height / 2 + 60), Vector2D(width / 2 + 10, height / 2 + 60), Color::White);
 		render::get().triangle(Vector2D(width / 2 - 55, height / 2 + 10), Vector2D(width / 2 - 75, height / 2), Vector2D(width / 2 - 55, height / 2 - 10), color);
+		render::get().triangle(Vector2D(width / 2 + 55, height / 2 - 10), Vector2D(width / 2 + 75, height / 2), Vector2D(width / 2 + 55, height / 2 + 10), Color::White);
+	}
 	else if (antiaim::get().manual_side == SIDE_RIGHT)
+	{
+		render::get().triangle(Vector2D(width / 2, height / 2 + 80), Vector2D(width / 2 - 10, height / 2 + 60), Vector2D(width / 2 + 10, height / 2 + 60), Color::White);
+		render::get().triangle(Vector2D(width / 2 - 55, height / 2 + 10), Vector2D(width / 2 - 75, height / 2), Vector2D(width / 2 - 55, height / 2 - 10), Color::White);
 		render::get().triangle(Vector2D(width / 2 + 55, height / 2 - 10), Vector2D(width / 2 + 75, height / 2), Vector2D(width / 2 + 55, height / 2 + 10), color);
+	}
 }
 
 void misc::aimbot_hitboxes()
@@ -512,7 +453,7 @@ void misc::aimbot_hitboxes()
 	if (!player)
 		return;
 
-	auto model = player->GetModel(); //-V807
+	auto model = player->GetModel();
 
 	if (!model)
 		return;
@@ -534,7 +475,7 @@ void misc::aimbot_hitboxes()
 		if (!hitbox)
 			continue;
 
-		if (hitbox->radius == -1.0f) //-V550
+		if (hitbox->radius == -1.0f)
 			continue;
 
 		auto min = ZERO;
@@ -549,7 +490,7 @@ void misc::aimbot_hitboxes()
 
 void misc::ragdolls()
 {
-	if (!g_cfg.misc.ragdolls)
+	if (g_cfg.misc.ragdolls_x == 1 && g_cfg.misc.ragdolls_y == 1 && g_cfg.misc.ragdolls_z == 1)
 		return;
 
 	for (auto i = 1; i <= m_entitylist()->GetHighestEntityIndex(); ++i)
@@ -571,7 +512,10 @@ void misc::ragdolls()
 			continue;
 
 		auto ragdoll = (ragdoll_t*)e;
-		ragdoll->m_vecForce().z = 800000.0f;
+
+		ragdoll->m_vecForce().x *= g_cfg.misc.ragdolls_x;
+		ragdoll->m_vecForce().y *= g_cfg.misc.ragdolls_y;
+		ragdoll->m_vecForce().z *= g_cfg.misc.ragdolls_z;
 	}
 }
 
@@ -606,7 +550,7 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 	if (pressed_move_key)
 		return;
 
-	if (!((antiaim::get().type == ANTIAIM_LEGIT ? g_cfg.antiaim.desync : g_cfg.antiaim.type[antiaim::get().type].desync) && (antiaim::get().type == ANTIAIM_LEGIT ? !g_cfg.antiaim.legit_lby_type : !g_cfg.antiaim.lby_type) && (!g_ctx.globals.weapon->is_grenade() || g_cfg.esp.on_click & !(m_pcmd->m_buttons & IN_ATTACK) && !(m_pcmd->m_buttons & IN_ATTACK2))) || antiaim::get().condition(m_pcmd)) //-V648
+	if (!((antiaim::get().type == ANTIAIM_LEGIT ? g_cfg.antiaim.desync : g_cfg.antiaim.type[antiaim::get().type].desync) && (antiaim::get().type == ANTIAIM_LEGIT ? !g_cfg.antiaim.legit_lby_type : !g_cfg.antiaim.lby_type) && (!g_ctx.globals.weapon->is_grenade() || g_cfg.esp.on_click & !(m_pcmd->m_buttons & IN_ATTACK) && !(m_pcmd->m_buttons & IN_ATTACK2))) || antiaim::get().condition(m_pcmd))
 	{
 		auto velocity = g_ctx.local()->m_vecVelocity();
 
@@ -721,10 +665,10 @@ void misc::spectators_list()
 		int width, heigth;
 		m_engine()->GetScreenSize(width, heigth);
 
-		auto x = render::get().text_width(fonts[LOGS], spectators.at(i).c_str()) + 6; //-V106
+		auto x = render::get().text_width(fonts[LOGS], spectators.at(i).c_str()) + 6;
 		auto y = i * 16;
 
-		render::get().text(fonts[LOGS], width - x, g_cfg.menu.watermark ? y + 30 : y + 6, Color::White, HFONT_CENTERED_NONE, spectators.at(i).c_str()); //-V106
+		render::get().text(fonts[LOGS], width - x, g_cfg.menu.watermark ? y + 30 : y + 6, Color::White, HFONT_CENTERED_NONE, spectators.at(i).c_str());
 	}
 }
 
@@ -768,7 +712,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 		return false;
 	}
 
-	if (!g_cfg.ragebot.double_tap)
+	if (!g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap)
 	{
 		double_tap_enabled = false;
 		double_tap_key = false;
@@ -786,7 +730,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 		return false;
 	}
 
-	if (double_tap_key && g_cfg.ragebot.double_tap_key.key != g_cfg.antiaim.hide_shots_key.key)
+	if (double_tap_key && g_cfg.ragebot.double_tap_key.key != g_cfg.ragebot.hide_shots_key.key)
 		hide_shots_key = false;
 
 	if (!double_tap_key)
@@ -797,7 +741,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 		return false;
 	}
 
-	if (g_ctx.local()->m_bGunGameImmunity() || g_ctx.local()->m_fFlags() & FL_FROZEN) //-V807
+	if (g_ctx.local()->m_bGunGameImmunity() || g_ctx.local()->m_fFlags() & FL_FROZEN)
 	{
 		double_tap_enabled = false;
 		g_ctx.globals.ticks_allowed = 0;
@@ -823,18 +767,18 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 
 	if (antiaim::get().freeze_check)
 		return true;
-
-	auto max_tickbase_shift = g_ctx.globals.weapon->get_max_tickbase_shift();
-
-	if (!g_ctx.globals.weapon->is_grenade() && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && g_ctx.send_packet && (m_pcmd->m_buttons & IN_ATTACK || m_pcmd->m_buttons & IN_ATTACK2 && g_ctx.globals.weapon->is_knife())) //-V648
+	
+	auto max_tickbase_shift = m_gamerules()->m_bIsValveDS() ? 6 : 16;
+	auto tickbase_shift = min(g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap_shift_value, max_tickbase_shift);
+	if (!g_ctx.globals.weapon->is_grenade() && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && g_ctx.send_packet && (m_pcmd->m_buttons & IN_ATTACK || m_pcmd->m_buttons & IN_ATTACK2 && g_ctx.globals.weapon->is_knife()))
 	{
 		auto next_command_number = m_pcmd->m_command_number + 1;
 		auto user_cmd = m_input()->GetUserCmd(next_command_number);
 
-		memcpy(user_cmd, m_pcmd, sizeof(CUserCmd)); //-V598
+		memcpy(user_cmd, m_pcmd, sizeof(CUserCmd));
 		user_cmd->m_command_number = next_command_number;
 
-		util::copy_command(user_cmd, max_tickbase_shift);
+		util::copy_command(user_cmd, tickbase_shift);
 
 		if (g_ctx.globals.aimbot_working)
 		{
@@ -849,7 +793,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 		last_double_tap = g_ctx.globals.fixed_tickbase;
 	}
 	else if (!g_ctx.globals.weapon->is_grenade() && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
-		g_ctx.globals.tickbase_shift = max_tickbase_shift;
+		g_ctx.globals.tickbase_shift = tickbase_shift;
 
 	return true;
 }
@@ -872,7 +816,7 @@ void misc::hide_shots(CUserCmd* m_pcmd, bool should_work)
 		return;
 	}
 
-	if (!g_cfg.antiaim.hide_shots)
+	if (!g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots)
 	{
 		hide_shots_enabled = false;
 		hide_shots_key = false;
@@ -886,7 +830,7 @@ void misc::hide_shots(CUserCmd* m_pcmd, bool should_work)
 		return;
 	}
 
-	if (g_cfg.antiaim.hide_shots_key.key <= KEY_NONE || g_cfg.antiaim.hide_shots_key.key >= KEY_MAX)
+	if (g_cfg.ragebot.hide_shots_key.key <= KEY_NONE || g_cfg.ragebot.hide_shots_key.key >= KEY_MAX)
 	{
 		hide_shots_enabled = false;
 		hide_shots_key = false;
@@ -936,9 +880,12 @@ void misc::hide_shots(CUserCmd* m_pcmd, bool should_work)
 	if (antiaim::get().freeze_check)
 		return;
 
-	g_ctx.globals.next_tickbase_shift = m_gamerules()->m_bIsValveDS() ? 6 : 9;
+	auto max_tickbase_shift = m_gamerules()->m_bIsValveDS() ? 6 : 16;
+	auto tickbase_shift = min(g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots_shift_value, max_tickbase_shift);
+	g_ctx.globals.next_tickbase_shift = tickbase_shift;
 
-	auto revolver_shoot = g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER && !g_ctx.globals.revolver_working && (m_pcmd->m_buttons & IN_ATTACK || m_pcmd->m_buttons & IN_ATTACK2);
+	// todo: simv0l - make check for right mouse click.
+	auto revolver_shoot = g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER && m_pcmd->m_buttons & IN_ATTACK2;//!g_ctx.globals.revolver_working && (m_pcmd->m_buttons & IN_ATTACK || m_pcmd->m_buttons & IN_ATTACK2);
 	auto weapon_shoot = m_pcmd->m_buttons & IN_ATTACK && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER || m_pcmd->m_buttons & IN_ATTACK2 && g_ctx.globals.weapon->is_knife() || revolver_shoot;
 
 	if (g_ctx.send_packet && !g_ctx.globals.weapon->is_grenade() && weapon_shoot)

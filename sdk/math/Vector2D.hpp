@@ -163,7 +163,7 @@ public:
 	{
 		Vector2D reses = *this;
 		float l = reses.LengthDrop();
-		if (l != 0.0f)  //-V550
+		if (l != 0.0f) 
 			reses /= l;
 		else 
 			reses.x = reses.y = 0.0f;

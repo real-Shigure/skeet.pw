@@ -1,7 +1,6 @@
 #pragma once
 #pragma optimize ("", off)
 
-#include "..\version.h"
 #include <array>
 
 constexpr auto _time = __TIME__;
@@ -11,7 +10,7 @@ template <int N>
 class RandomGenerator
 {
 	static constexpr unsigned a = 16807;
-	static constexpr unsigned m = 2147483647; //-V112
+	static constexpr unsigned m = 2147483647;
 
 	static constexpr unsigned s = RandomGenerator <N - 1>::value;
 	static constexpr unsigned lo = a * (s & 0xFFFF); 
@@ -70,17 +69,13 @@ public:
 	__forceinline decltype(auto) decrypt()
 	{
 		for (size_t i = 0; i < N; ++i) 
-			_encrypted[i] = dec(_encrypted[i]); //-V120
+			_encrypted[i] = dec(_encrypted[i]);
 		
-		_encrypted[N] = '\0'; //-V120
+		_encrypted[N] = '\0';
 		return _encrypted.data();
 	}
 };
 
-#if RELEASE
 #define crypt_str(s) XorString <sizeof(s) - 1, __COUNTER__> (s, std::make_index_sequence <sizeof(s) - 1>()).decrypt()
-#else
-#define crypt_str(s) s
-#endif
 
 #pragma optimize ("", on)

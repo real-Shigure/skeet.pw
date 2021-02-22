@@ -122,7 +122,7 @@ void render::rounded_box(int x, int y, int w, int h, int points, int radius, Col
 
 	color.SetAlpha(static_cast<int>(color.a() * alpha_factor));
 
-	Vertex_t *round = new Vertex_t[4 * points]; //-V121
+	Vertex_t *round = new Vertex_t[4 * points];
 
 	for (int i = 0; i < 4; i++) {
 		int _x = x + ((i < 2) ? (w - radius) : radius);
@@ -180,7 +180,7 @@ void render::grid(int x, int y, int w, int h, Color first, Color second, Color t
 		m_surface()->DrawFilledRect(x, y, x + w, y + h);
 	}
 
-	m_surface()->DrawSetColor(first); //-V807
+	m_surface()->DrawSetColor(first);
 	filled_rect_fade(true, first.a());
 
 	m_surface()->DrawSetColor(second);
@@ -205,7 +205,7 @@ void render::circle(int x, int y, int points, int radius, Color color)
 	if (once)
 	{
 		float step = (float)DirectX::XM_PI * 2.0f / points;
-		for (float a = 0; a < (DirectX::XM_PI * 2.0f); a += step) //-V1034
+		for (float a = 0; a < (DirectX::XM_PI * 2.0f); a += step)
 		{
 			temppointsx.push_back(cosf(a));
 			temppointsy.push_back(sinf(a));
@@ -246,7 +246,7 @@ void render::circle_filled(int x, int y, int points, int radius, Color color)
 	if (once)
 	{
 		float step = (float)DirectX::XM_PI * 2.0f / points;
-		for (float a = 0; a < (DirectX::XM_PI * 2.0f); a += step) //-V1034
+		for (float a = 0; a < (DirectX::XM_PI * 2.0f); a += step)
 		{
 			temppointsx.push_back(cosf(a));
 			temppointsy.push_back(sinf(a));
@@ -467,7 +467,7 @@ void render::DrawFilled3DBox(const Vector& origin, int width, int height, Color 
 
 void ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b)
 {
-	if (!s) //-V550
+	if (!s)
 	{
 		out_r = out_g = out_b = v;
 		return;
@@ -519,12 +519,12 @@ void ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g,
 
 void render::Draw3DCircle(const Vector& origin, float radius, Color color)
 {
-	static auto prevScreenPos = ZERO; //-V656
+	static auto prevScreenPos = ZERO;
 	static auto step = M_PI * 2.0f / 72.0f;
 
 	auto screenPos = ZERO;
 
-	for (auto rotation = 0.0f; rotation <= M_PI * 2.0f; rotation += step) //-V1034
+	for (auto rotation = 0.0f; rotation <= M_PI * 2.0f; rotation += step)
 	{
 		Vector pos(radius * cos(rotation) + origin.x, radius * sin(rotation) + origin.y, origin.z);
 
@@ -547,7 +547,7 @@ void render::Draw3DCircle(const Vector& origin, float radius, Color color)
 
 void render::Draw3DFilledCircle(const Vector& origin, float radius, Color color)
 {
-	static auto prevScreenPos = ZERO; //-V656
+	static auto prevScreenPos = ZERO;
 	static auto step = M_PI * 2.0f / 72.0f;
 
 	auto screenPos = ZERO;
@@ -556,7 +556,7 @@ void render::Draw3DFilledCircle(const Vector& origin, float radius, Color color)
 	if (!math::world_to_screen(origin, screen))
 		return;
 
-	for (auto rotation = 0.0f; rotation <= M_PI * 2.0f; rotation += step) //-V1034
+	for (auto rotation = 0.0f; rotation <= M_PI * 2.0f; rotation += step)
 	{
 		Vector pos(radius * cos(rotation) + origin.x, radius * sin(rotation) + origin.y, origin.z);
 
@@ -576,12 +576,12 @@ void render::Draw3DFilledCircle(const Vector& origin, float radius, Color color)
 void render::Draw3DRainbowCircle(const Vector& origin, float radius)
 {
 	static auto hue_offset = 0.0f;
-	static auto prevScreenPos = ZERO; //-V656
+	static auto prevScreenPos = ZERO;
 	static auto step = M_PI * 2.0f / 72.0f;
 
 	auto screenPos = ZERO;
 
-	for (auto rotation = 0.0f; rotation <= M_PI * 2.0f; rotation += step) //-V1034
+	for (auto rotation = 0.0f; rotation <= M_PI * 2.0f; rotation += step)
 	{
 		Vector pos(radius * cos(rotation) + origin.x, radius * sin(rotation) + origin.y, origin.z);
 

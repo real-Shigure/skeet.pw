@@ -119,13 +119,13 @@ void bullettracers::draw_beams()
 
 	while (!impacts.empty())
 	{
-		if (impacts.begin()->impact_position.IsZero()) //-V807
+		if (impacts.begin()->impact_position.IsZero())
 		{
 			impacts.erase(impacts.begin());
 			continue;
 		}
 
-		if (fabs(m_globals()->m_curtime - impacts.begin()->time) > 4.0f) //-V807
+		if (fabs(m_globals()->m_curtime - impacts.begin()->time) > 4.0f)
 		{
 			impacts.erase(impacts.begin());
 			continue;

@@ -1,4 +1,4 @@
-/*#include "..\math\Vector.hpp"
+#include "..\math\Vector.hpp"
 
 class CSfxTable;
 struct SpatializationInfo_t;
@@ -76,7 +76,7 @@ struct StartSoundParams_t
 	int userdata;
 	int soundsource;
 	int entchannel;
-	CSfxTable *pSfx;
+	CSfxTable* pSfx;
 	Vector origin;
 	Vector direction;
 	bool bUpdatePositions;
@@ -94,86 +94,91 @@ struct StartSoundParams_t
 class ISoundServices
 {
 public:
-	//-------------------------------—
+	//---------------------------------
 	// Allocate a block of memory that will be automatically
 	// cleaned up on level change
-	//-------------------------------—
-	virtual void *LevelAlloc(int nBytes, const char *pszTag) = 0;
+	//---------------------------------
+	virtual void* LevelAlloc(int nBytes, const char* pszTag) = 0;
 
-	//-------------------------------—
+	//---------------------------------
 	// Notification that someone called S_ExtraUpdate()
-	//-------------------------------—
+	//---------------------------------
 	virtual void OnExtraUpdate() = 0;
 
-	//-------------------------------—
+	//---------------------------------
 	// Return false if the entity doesn't exist or is out of the PVS, in which case the sound shouldn't be heard.
-	//-------------------------------—
+	//---------------------------------
 	virtual bool GetSoundSpatialization(int entIndex, SpatializationInfo_t& info) = 0;
 
-	//-------------------------------—
+	//---------------------------------
 	// This is the client's clock, which follows the servers and thus isn't 100% smooth all the time (it is in single player)
-	//-------------------------------—
+	//---------------------------------
 	virtual float GetClientTime() = 0;
 
-	//-------------------------------—
+	//---------------------------------
 	// This is the engine's filtered timer, it's pretty smooth all the time
-	//-------------------------------—
+	//---------------------------------
 	virtual float GetHostTime() = 0;
 
-	//-------------------------------—
-	//-------------------------------—
-	virtual int GetViewEntity() = 0;
+	//---------------------------------
+	//---------------------------------
+	virtual int GetViewEntity(int nSlot) = 0;
 
-	//-------------------------------—
-	//-------------------------------—
+	//---------------------------------
+	//---------------------------------
 	virtual float GetHostFrametime() = 0;
 	virtual void SetSoundFrametime(float realDt, float hostDt) = 0;
 
-	//-------------------------------—
-	//-------------------------------—
+	//---------------------------------
+	//---------------------------------
 	virtual int GetServerCount() = 0;
 
-	//-------------------------------—
-	//-------------------------------—
-	virtual bool
-		IsPlayer(unsigned source) = 0;
+	//---------------------------------
+	//---------------------------------
+	virtual bool IsPlayer(void* source) = 0;
 
-	//-------------------------------—
-	//-------------------------------—
-	virtual void OnChangeVoiceStatus(int entity, bool status) = 0;
+	// -1 if local player not spectating anyone, otherwise the index of the player being spectated
+	virtual int GetSpectatorTarget(void* pObserverMode) = 0;
+
+	//---------------------------------
+	//---------------------------------
+	virtual void OnChangeVoiceStatus(int entity, int iSsSlot, bool status) = 0;
+
+	// returns false if the player can't hear the other client due to game rules (eg. the other team)
+	virtual bool GetPlayerAudible(int iPlayerIndex) = 0;
 
 	// Is the player fully connected (don't do DSP processing if not)
 	virtual bool IsConnected() = 0;
 
 	// Calls into client .dll with list of close caption tokens to construct a caption out of
-	virtual void EmitSentenceCloseCaption(char const *tokenstream) = 0;
+	virtual void EmitSentenceCloseCaption(char const* tokenstream) = 0;
 	// Calls into client .dll with list of close caption tokens to construct a caption out of
-	virtual void EmitCloseCaption(char const *captionname, float duration) = 0;
+	virtual void EmitCloseCaption(char const* captionname, float duration) = 0;
 
-	virtual char const *GetGameDir() = 0;
+	virtual char const* GetGameDir() = 0;
 
 	// If the game is paused, certain audio will pause, too (anything with phoneme/sentence data for now)
-	virtual bool IsGamePaused() = 0;
+	virtual bool	IsGamePaused() = 0;
 
 	// restarts the sound system externally
-	virtual void RestartSoundSystem() = 0;
+	virtual void	RestartSoundSystem() = 0;
 
-	virtual void GetAllSoundFilesReferencedInReslists(unsigned) = 0;
-	virtual void GetAllManifestFiles(unsigned) = 0;
-	virtual void GetAllSoundFilesInManifest(unsigned, char const *manifestfile) = 0;
+	virtual void	GetAllSoundFilesReferencedInReslists(void* list) = 0;
+	virtual void	GetAllManifestFiles(void* list) = 0;
+	virtual void	GetAllSoundFilesInManifest(void* list, char const* manifestfile) = 0;
 
-	virtual void CacheBuildingStart() = 0;
-	virtual void CacheBuildingUpdateProgress(float percent, char const *cachefile) = 0;
-	virtual void CacheBuildingFinish() = 0;
+	virtual void	CacheBuildingStart() = 0;
+	virtual void	CacheBuildingUpdateProgress(float percent, char const* cachefile) = 0;
+	virtual void	CacheBuildingFinish() = 0;
 
 	// For building sound cache manifests
-	virtual int GetPrecachedSoundCount() = 0;
-	virtual char const *GetPrecachedSound(int index) = 0;
+	virtual int			GetPrecachedSoundCount() = 0;
+	virtual char const* GetPrecachedSound(int index) = 0;
 
-	virtual void OnSoundStarted(int guid, StartSoundParams_t& params, char const *soundname) = 0;
-	virtual void OnSoundStopped(int guid, int soundsource, int channel, char const *soundname) = 0;
+	virtual void		OnSoundStarted(int guid, StartSoundParams_t& params, char const* soundname) = 0;
+	virtual void		OnSoundStopped(int guid, int soundsource, int channel, char const* soundname) = 0;
 
-	virtual bool GetToolSpatialization(int iUserData, int guid, SpatializationInfo_t& info) = 0;
-	virtual char const *GetUILanguage() = 0;
+	virtual bool		GetToolSpatialization(int iUserData, int guid, SpatializationInfo_t& info) = 0;
+
+	virtual char const* GetUILanguage() = 0;
 };
-*/

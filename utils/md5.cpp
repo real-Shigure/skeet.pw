@@ -70,7 +70,7 @@ inline void MD5::II(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4
 //////////////////////////////////////////////
 
 // default ctor, just initailize
-MD5::MD5() //-V730
+MD5::MD5()
 {
 	init();
 }
@@ -81,7 +81,7 @@ MD5::MD5() //-V730
 MD5::MD5(const std::string &text)
 {
 	init();
-	update(text.c_str(), text.length()); //-V107
+	update(text.c_str(), text.length());
 	finalize();
 }
 
@@ -224,7 +224,7 @@ void MD5::update(const unsigned char input[], size_type length)
 	size_type index = count[0] / 8 % blocksize;
 
 	// Update number of bits
-	if ((count[0] += (length << 3)) < (length << 3)) //-V1019
+	if ((count[0] += (length << 3)) < (length << 3))
 		count[1]++;
 	count[1] += (length >> 29);
 
@@ -250,7 +250,7 @@ void MD5::update(const unsigned char input[], size_type length)
 		i = 0;
 
 	// buffer remaining input
-	memcpy(&buffer[index], &input[i], length - i); //-V106
+	memcpy(&buffer[index], &input[i], length - i);
 }
 
 //////////////////////////////

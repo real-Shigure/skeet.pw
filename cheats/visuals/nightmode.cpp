@@ -36,7 +36,7 @@ void nightmode::apply()
 {
 	if (!materials.empty())
 	{
-		for (auto i = 0; i < (int)materials.size(); i++) //-V202
+		for (auto i = 0; i < (int)materials.size(); i++)
 			modulate(materials[i].handle, materials[i].material);
 
 		return;

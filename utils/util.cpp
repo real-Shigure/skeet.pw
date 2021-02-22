@@ -1,14 +1,11 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #include "util.hpp"
 #include "..\cheats\visuals\player_esp.h"
 #include "..\cheats\lagcompensation\animation_system.h"
 #include "..\cheats\misc\misc.h"
 #include <thread>
 
-#define INRANGE(x, a, b) (x >= a && x <= b)  //-V1003
-#define GETBITS(x) (INRANGE((x & (~0x20)),'A','F') ? ((x & (~0x20)) - 'A' + 0xA) : (INRANGE(x, '0', '9') ? x - '0' : 0)) //-V1003
+#define INRANGE(x, a, b) (x >= a && x <= b)
+#define GETBITS(x) (INRANGE((x & (~0x20)),'A','F') ? ((x & (~0x20)) - 'A' + 0xA) : (INRANGE(x, '0', '9') ? x - '0' : 0))
 #define GETBYTE(x) (GETBITS(x[0]) << 4 | GETBITS(x[1]))
 
 namespace util
@@ -40,7 +37,7 @@ namespace util
 		MODULEINFO modInfo;
 		GetModuleInformation(GetCurrentProcess(), GetModuleHandle(szModule), &modInfo, sizeof(MODULEINFO));
 
-		uintptr_t startAddress = (DWORD)modInfo.lpBaseOfDll; //-V101 //-V220
+		uintptr_t startAddress = (DWORD)modInfo.lpBaseOfDll;
 		uintptr_t endAddress = startAddress + modInfo.SizeOfImage;
 
 		const char* pat = szSignature;
@@ -88,7 +85,7 @@ namespace util
 		m_trace()->TraceRay(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &trace);
 		g_ctx.globals.autowalling = false;
 
-		return trace.hit_entity == entity || trace.fraction == 1.0f; //-V550
+		return trace.hit_entity == entity || trace.fraction == 1.0f;
 	}
 
 	bool is_button_down(int code)
@@ -110,50 +107,52 @@ namespace util
 		return m_inputsys()->IsButtonDown((ButtonCode_t)code);
 	}
 
-	void movement_fix(Vector& wish_angle, CUserCmd* m_pcmd)
+	void movement_fix(CUserCmd* m_pcmd)
 	{
-		Vector view_fwd, view_right, view_up, cmd_fwd, cmd_right, cmd_up;
+		Vector view_fwd, view_right, view_up, g_cmd_fwd, g_cmd_right, g_cmd_up;
 		auto viewangles = m_pcmd->m_viewangles;
 		viewangles.Normalized();
 
-		math::angle_vectors(wish_angle, &view_fwd, &view_right, &view_up);
-		math::angle_vectors(viewangles, &cmd_fwd, &cmd_right, &cmd_up);
+		math::angle_vectors(g_ctx.globals.wish_angle, &view_fwd, &view_right, &view_up);
+		math::angle_vectors(viewangles, &g_cmd_fwd, &g_cmd_right, &g_cmd_up);
 
-		float v8 = sqrtf((view_fwd.x * view_fwd.x) + (view_fwd.y * view_fwd.y));
-		float v10 = sqrtf((view_right.x * view_right.x) + (view_right.y * view_right.y));
-		float v12 = sqrtf(view_up.z * view_up.z);
+		const auto v8 = sqrtf((view_fwd.x * view_fwd.x) + (view_fwd.y * view_fwd.y));
+		const auto v10 = sqrtf((view_right.x * view_right.x) + (view_right.y * view_right.y));
+		const auto v12 = sqrtf(view_up.z * view_up.z);
 
-		Vector norm_view_fwd((1.f / v8) * view_fwd.x, (1.f / v8) * view_fwd.y, 0.f);
-		Vector norm_view_right((1.f / v10) * view_right.x, (1.f / v10) * view_right.y, 0.f);
-		Vector norm_view_up(0.f, 0.f, (1.f / v12) * view_up.z);
+		const Vector norm_view_fwd((1.f / v8) * view_fwd.x, (1.f / v8) * view_fwd.y, 0.f);
+		const Vector norm_view_right((1.f / v10) * view_right.x, (1.f / v10) * view_right.y, 0.f);
+		const Vector norm_view_up(0.f, 0.f, (1.f / v12) * view_up.z);
 
-		float v14 = sqrtf((cmd_fwd.x * cmd_fwd.x) + (cmd_fwd.y * cmd_fwd.y));
-		float v16 = sqrtf((cmd_right.x * cmd_right.x) + (cmd_right.y * cmd_right.y));
-		float v18 = sqrtf(cmd_up.z * cmd_up.z);
+		const auto v14 = sqrtf((g_cmd_fwd.x * g_cmd_fwd.x) + (g_cmd_fwd.y * g_cmd_fwd.y));
+		const auto v16 = sqrtf((g_cmd_right.x * g_cmd_right.x) + (g_cmd_right.y * g_cmd_right.y));
+		const auto v18 = sqrtf(g_cmd_up.z * g_cmd_up.z);
 
-		Vector norm_cmd_fwd((1.f / v14) * cmd_fwd.x, (1.f / v14) * cmd_fwd.y, 0.f);
-		Vector norm_cmd_right((1.f / v16) * cmd_right.x, (1.f / v16) * cmd_right.y, 0.f);
-		Vector norm_cmd_up(0.f, 0.f, (1.f / v18) * cmd_up.z);
+		const Vector norm_g_cmd_fwd((1.f / v14) * g_cmd_fwd.x, (1.f / v14) * g_cmd_fwd.y, 0.f);
+		const Vector norm_g_cmd_right((1.f / v16) * g_cmd_right.x, (1.f / v16) * g_cmd_right.y, 0.f);
+		const Vector norm_g_cmd_up(0.f, 0.f, (1.f / v18) * g_cmd_up.z);
 
-		float v22 = norm_view_fwd.x * m_pcmd->m_forwardmove;
-		float v26 = norm_view_fwd.y * m_pcmd->m_forwardmove;
-		float v28 = norm_view_fwd.z * m_pcmd->m_forwardmove;
-		float v24 = norm_view_right.x * m_pcmd->m_sidemove;
-		float v23 = norm_view_right.y * m_pcmd->m_sidemove;
-		float v25 = norm_view_right.z * m_pcmd->m_sidemove;
-		float v30 = norm_view_up.x * m_pcmd->m_upmove;
-		float v27 = norm_view_up.z * m_pcmd->m_upmove;
-		float v29 = norm_view_up.y * m_pcmd->m_upmove;
+		const auto v22 = norm_view_fwd.x * m_pcmd->m_forwardmove;
+		const auto v26 = norm_view_fwd.y * m_pcmd->m_forwardmove;
+		const auto v28 = norm_view_fwd.z * m_pcmd->m_forwardmove;
+		const auto v24 = norm_view_right.x * m_pcmd->m_sidemove;
+		const auto v23 = norm_view_right.y * m_pcmd->m_sidemove;
+		const auto v25 = norm_view_right.z * m_pcmd->m_sidemove;
+		const auto v30 = norm_view_up.x * m_pcmd->m_upmove;
+		const auto v27 = norm_view_up.z * m_pcmd->m_upmove;
+		const auto v29 = norm_view_up.y * m_pcmd->m_upmove;
 
-		m_pcmd->m_forwardmove = ((((norm_cmd_fwd.x * v24) + (norm_cmd_fwd.y * v23)) + (norm_cmd_fwd.z * v25))
-			+ (((norm_cmd_fwd.x * v22) + (norm_cmd_fwd.y * v26)) + (norm_cmd_fwd.z * v28)))
-			+ (((norm_cmd_fwd.y * v30) + (norm_cmd_fwd.x * v29)) + (norm_cmd_fwd.z * v27));
-		m_pcmd->m_sidemove = ((((norm_cmd_right.x * v24) + (norm_cmd_right.y * v23)) + (norm_cmd_right.z * v25))
-			+ (((norm_cmd_right.x * v22) + (norm_cmd_right.y * v26)) + (norm_cmd_right.z * v28)))
-			+ (((norm_cmd_right.x * v29) + (norm_cmd_right.y * v30)) + (norm_cmd_right.z * v27));
-		m_pcmd->m_upmove = ((((norm_cmd_up.x * v23) + (norm_cmd_up.y * v24)) + (norm_cmd_up.z * v25))
-			+ (((norm_cmd_up.x * v26) + (norm_cmd_up.y * v22)) + (norm_cmd_up.z * v28)))
-			+ (((norm_cmd_up.x * v30) + (norm_cmd_up.y * v29)) + (norm_cmd_up.z * v27));
+		m_pcmd->m_forwardmove = ((((norm_g_cmd_fwd.x * v24) + (norm_g_cmd_fwd.y * v23)) + (norm_g_cmd_fwd.z * v25))
+			+ (((norm_g_cmd_fwd.x * v22) + (norm_g_cmd_fwd.y * v26)) + (norm_g_cmd_fwd.z * v28)))
+			+ (((norm_g_cmd_fwd.y * v30) + (norm_g_cmd_fwd.x * v29)) + (norm_g_cmd_fwd.z * v27));
+		m_pcmd->m_sidemove = ((((norm_g_cmd_right.x * v24) + (norm_g_cmd_right.y * v23)) + (norm_g_cmd_right.z * v25))
+			+ (((norm_g_cmd_right.x * v22) + (norm_g_cmd_right.y * v26)) + (norm_g_cmd_right.z * v28)))
+			+ (((norm_g_cmd_right.x * v29) + (norm_g_cmd_right.y * v30)) + (norm_g_cmd_right.z * v27));
+		m_pcmd->m_upmove = ((((norm_g_cmd_up.x * v23) + (norm_g_cmd_up.y * v24)) + (norm_g_cmd_up.z * v25))
+			+ (((norm_g_cmd_up.x * v26) + (norm_g_cmd_up.y * v22)) + (norm_g_cmd_up.z * v28)))
+			+ (((norm_g_cmd_up.x * v30) + (norm_g_cmd_up.y * v29)) + (norm_g_cmd_up.z * v27));
+
+		g_ctx.globals.wish_angle = viewangles;
 
 		static auto cl_forwardspeed = m_cvar()->FindVar(crypt_str("cl_forwardspeed"));
 		static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
@@ -368,7 +367,7 @@ namespace util
 		if (i < 1 || i > 64)
 			return false;
 
-		auto records = &player_records[i]; //-V826
+		auto records = &player_records[i];
 
 		if (records->size() < 2)
 			return false;
@@ -448,7 +447,7 @@ namespace util
 		static auto cl_forwardspeed = m_cvar()->FindVar(crypt_str("cl_forwardspeed"));
 		static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
 
-		if (g_cfg.ragebot.slow_teleport)
+		if (g_cfg.ragebot.weapon[hooks::rage_weapon].slow_teleport)
 		{
 			cmd->m_forwardmove = 0.0f;
 			cmd->m_sidemove = 0.0f;
@@ -475,7 +474,7 @@ namespace util
 			auto command = m_input()->GetUserCmd(sequence_number);
 			auto verified_command = m_input()->GetVerifiedUserCmd(sequence_number);
 
-			memcpy(command, cmd, sizeof(CUserCmd)); //-V598
+			memcpy(command, cmd, sizeof(CUserCmd));
 
 			if (command->m_tickcount != INT_MAX && m_clientstate()->iDeltaTick > 0)
 				m_prediction()->Update(m_clientstate()->iDeltaTick, true, m_clientstate()->nLastCommandAck, m_clientstate()->nLastOutgoingCommand + m_clientstate()->iChokedCommands);
@@ -483,7 +482,7 @@ namespace util
 			command->m_command_number = sequence_number;
 			command->m_predicted = command->m_tickcount != INT_MAX;
 
-			++m_clientstate()->iChokedCommands; //-V807
+			++m_clientstate()->iChokedCommands;
 
 			if (m_clientstate()->pNetChannel)
 			{
@@ -493,7 +492,7 @@ namespace util
 
 			math::normalize_angles(command->m_viewangles);
 
-			memcpy(&verified_command->m_cmd, command, sizeof(CUserCmd)); //-V598
+			memcpy(&verified_command->m_cmd, command, sizeof(CUserCmd));
 			verified_command->m_crc = command->GetChecksum();
 
 			++commands_to_add;
@@ -506,7 +505,7 @@ namespace util
 
 	float get_interpolation()
 	{
-		static auto cl_interp = m_cvar()->FindVar(crypt_str("cl_interp")); //-V807
+		static auto cl_interp = m_cvar()->FindVar(crypt_str("cl_interp"));
 		static auto cl_interp_ratio = m_cvar()->FindVar(crypt_str("cl_interp_ratio"));
 		static auto sv_client_min_interp_ratio = m_cvar()->FindVar(crypt_str("sv_client_min_interp_ratio"));
 		static auto sv_client_max_interp_ratio = m_cvar()->FindVar(crypt_str("sv_client_max_interp_ratio"));

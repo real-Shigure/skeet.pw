@@ -5,15 +5,13 @@ class misc : public singleton <misc>
 public:
 	void watermark();
 	void NoDuck(CUserCmd* cmd);
-	void ChatSpamer();
 	void AutoCrouch(CUserCmd* cmd);
 	void SlideWalk(CUserCmd* cmd);
-	void automatic_peek(CUserCmd* cmd, float wish_yaw);
+	void automatic_peek(CUserCmd* cmd);
 	void ViewModel();
 	void FullBright();
 	void PovArrows(player_t* e, Color color);
 	void NightmodeFix();
-	void zeus_range();
 	void desync_arrows();
 	void aimbot_hitboxes();
 	void ragdolls();

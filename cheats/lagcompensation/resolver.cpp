@@ -1,6 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #include "animation_system.h"
 #include "..\ragebot\aim.h"
 
@@ -18,9 +15,6 @@ void resolver::reset()
 	player = nullptr;
 	player_record = nullptr;
 
-	side = false;
-	fake = false;
-
 	was_first_bruteforce = false;
 	was_second_bruteforce = false;
 
@@ -31,132 +25,95 @@ void resolver::reset()
 void resolver::resolve_yaw()
 {
 	player_info_t player_info;
+	auto animstate = player->get_animation_state();
 
-	if (!m_engine()->GetPlayerInfo(player->EntIndex(), &player_info))
-		return;
-
-#if RELEASE
-	if (player_info.fakeplayer || !g_ctx.local()->is_alive() || player->m_iTeamNum() == g_ctx.local()->m_iTeamNum()) //-V807
-#else
-	if (!g_ctx.local()->is_alive() || player->m_iTeamNum() == g_ctx.local()->m_iTeamNum())
-#endif
+	if (!m_engine()->GetPlayerInfo(player->EntIndex(), &player_info) || !animstate || player_info.fakeplayer || g_cfg.player_list.disable_resolver[player_record->i] || !g_ctx.local()->is_alive() || player->m_iTeamNum() == g_ctx.local()->m_iTeamNum() || abs(TIME_TO_TICKS(player->m_flSimulationTime() - player->m_flOldSimulationTime()) - 1) || player_record->shot)
 	{
 		player_record->side = RESOLVER_ORIGINAL;
 		return;
 	}
 
-	if (g_ctx.globals.missed_shots[player->EntIndex()] >= 2 || g_ctx.globals.missed_shots[player->EntIndex()] && aim::get().last_target[player->EntIndex()].record.type != LBY)
+	if (g_ctx.globals.missed_shots[player->EntIndex()])
 	{
 		switch (last_side)
 		{
 		case RESOLVER_ORIGINAL:
 			g_ctx.globals.missed_shots[player->EntIndex()] = 0;
-			fake = true;
 			break;
 		case RESOLVER_ZERO:
-			player_record->type = BRUTEFORCE;
-			player_record->side = RESOLVER_LOW_FIRST;
+			player_record->side = RESOLVER_LOW_POSITIVE;
 
 			was_first_bruteforce = false;
 			was_second_bruteforce = false;
 			return;
-		case RESOLVER_FIRST:
-			player_record->type = BRUTEFORCE;
-			player_record->side = was_second_bruteforce ? RESOLVER_ZERO : RESOLVER_SECOND;
+		case RESOLVER_POSITIVE:
+			player_record->side = was_second_bruteforce ? RESOLVER_ZERO : RESOLVER_NEGATIVE;
 
 			was_first_bruteforce = true;
 			return;
-		case RESOLVER_SECOND:
-			player_record->type = BRUTEFORCE;
-			player_record->side = was_first_bruteforce ? RESOLVER_ZERO : RESOLVER_FIRST;
+		case RESOLVER_NEGATIVE:
+			player_record->side = was_first_bruteforce ? RESOLVER_ZERO : RESOLVER_POSITIVE;
 
 			was_second_bruteforce = true;
 			return;
-		case RESOLVER_LOW_FIRST:
-			player_record->type = BRUTEFORCE;
-			player_record->side = RESOLVER_LOW_SECOND;
+		case RESOLVER_LOW_POSITIVE:
+			player_record->side = RESOLVER_LOW_NEGATIVE;
 			return;
-		case RESOLVER_LOW_SECOND:
-			player_record->type = BRUTEFORCE;
-			player_record->side = RESOLVER_FIRST;
+		case RESOLVER_LOW_NEGATIVE:
+			player_record->side = RESOLVER_POSITIVE;
 			return;
 		}
 	}
 
-	auto animstate = player->get_animation_state();
-
-	if (!animstate)
+	auto valid_move = true;
+	if (animstate->m_velocity > 0.1f)
 	{
-		player_record->side = RESOLVER_ORIGINAL;
-		return;
+		valid_move = animstate->m_flTimeSinceStartedMoving < 0.22f;
 	}
 
-	if (fabs(original_pitch) > 85.0f)
-		fake = true;
-	else if (!fake)
+	if (valid_move && player_record->layers[3].m_flWeight == 0.f && player_record->layers[3].m_flCycle == 0.f && player_record->layers[6].m_flWeight == 0.f)
 	{
-		player_record->side = RESOLVER_ORIGINAL;
-		return;
+		auto delta = math::angle_difference(player->m_angEyeAngles().y, zero_goal_feet_yaw);
+		auto positive_resolver = (2 * (delta <= 0.0f) - 1) > 0;
+		player_record->side = positive_resolver ? RESOLVER_POSITIVE : RESOLVER_NEGATIVE;
 	}
-
-	auto delta = math::normalize_yaw(player->m_angEyeAngles().y - original_goal_feet_yaw);
-	auto valid_lby = true;
-
-	if (animstate->m_velocity > 0.1f || fabs(animstate->flUpVelocity) > 100.f)
-		valid_lby = animstate->m_flTimeSinceStartedMoving < 0.22f;
-
-	if (fabs(delta) > 30.0f && valid_lby)
+	else if (!valid_move &&	!(static_cast<int>(player_record->layers[12].m_flWeight * 1000.f)) && static_cast<int>(player_record->layers[6].m_flWeight * 1000.f) == static_cast<int>(previous_layers[6].m_flWeight * 1000.f))
 	{
-		if (g_ctx.globals.missed_shots[player->EntIndex()])
-			delta = -delta;
+		auto delta_negative = abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[0][6].m_flPlaybackRate);
+		auto delta_zero = abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[1][6].m_flPlaybackRate);
+		auto delta_positive = abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[2][6].m_flPlaybackRate);
 
-		if (delta > 30.0f)
+		if (delta_zero < delta_positive || delta_negative <= delta_positive || (delta_positive * 1000.f))
 		{
-			player_record->type = LBY;
-			player_record->side = RESOLVER_FIRST;
+			if (delta_zero >= delta_negative && delta_positive > delta_negative && !(delta_negative * 1000.f))
+			{
+				player_record->side = RESOLVER_POSITIVE;
+			}
 		}
-		else if (delta < -30.0f)
+		else
 		{
-			player_record->type = LBY;
-			player_record->side = RESOLVER_SECOND;
+			player_record->side = RESOLVER_NEGATIVE;
 		}
 	}
 	else
 	{
-		auto trace = false;
-
 		if (m_globals()->m_curtime - lock_side > 2.0f)
 		{
-			auto first_visible = util::visible(g_ctx.globals.eye_pos, player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.first), player, g_ctx.local());
-			auto second_visible = util::visible(g_ctx.globals.eye_pos, player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.second), player, g_ctx.local());
+			auto fire_data_positive = autowall::get().wall_penetration(g_ctx.globals.eye_pos, player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.positive), player);
+			auto fire_data_negative = autowall::get().wall_penetration(g_ctx.globals.eye_pos, player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.negative), player);
 
-			if (first_visible != second_visible)
+			if (fire_data_positive.visible != fire_data_negative.visible)
 			{
-				trace = true;
-				side = second_visible;
+				player_record->side = fire_data_negative.visible ? RESOLVER_POSITIVE : RESOLVER_NEGATIVE;
 				lock_side = m_globals()->m_curtime;
 			}
 			else
 			{
-				auto first_position = g_ctx.globals.eye_pos.DistTo(player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.first));
-				auto second_position = g_ctx.globals.eye_pos.DistTo(player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.second));
-
-				if (fabs(first_position - second_position) > 1.0f)
-					side = first_position > second_position;
+				if (fire_data_positive.damage != fire_data_negative.damage)
+				{
+					player_record->side = fire_data_negative.damage > fire_data_positive.damage ? RESOLVER_POSITIVE : RESOLVER_NEGATIVE;
+				}
 			}
-		}
-		else
-			trace = true;
-
-		if (side)
-		{
-			player_record->type = trace ? TRACE: DIRECTIONAL;
-			player_record->side = RESOLVER_FIRST;
-		}
-		else
-		{
-			player_record->type = trace ? TRACE : DIRECTIONAL;
-			player_record->side = RESOLVER_SECOND;
 		}
 	}
 }

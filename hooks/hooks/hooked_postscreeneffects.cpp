@@ -17,7 +17,7 @@ void __fastcall hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewS
 	if (!g_ctx.local())
 		return original_fn(thisptr, setup);
 
-	for (auto i = 0; i < m_glow()->m_GlowObjectDefinitions.Count(); i++) //-V807
+	for (auto i = 0; i < m_glow()->m_GlowObjectDefinitions.Count(); i++)
 	{
 		if (m_glow()->m_GlowObjectDefinitions[i].IsUnused())
 			continue;
@@ -91,7 +91,7 @@ void __fastcall hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewS
 				g_cfg.player.type[type].glow_type
 			);
 		}
-		else if (g_cfg.esp.weapon[WEAPON_GLOW] && (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor)) //-V648
+		else if (g_cfg.esp.weapon[WEAPON_GLOW] && (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor))
 		{
 			float color[4] =
 			{
@@ -169,7 +169,6 @@ void __fastcall hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewS
 					0
 				);
 			}
-
 		}
 	}
 

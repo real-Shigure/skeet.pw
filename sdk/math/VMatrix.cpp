@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------------
 // VMatrix inlines.
 //-----------------------------------------------------------------------------
-inline VMatrix::VMatrix( ) { } //-V730
+inline VMatrix::VMatrix( ) { }
 
 inline VMatrix::VMatrix(
 	float m00, float m01, float m02, float m03,

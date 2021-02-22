@@ -18,9 +18,9 @@ public:
 		unsigned char a3[3];
 		unsigned char a4[4];
 
-		out->resize(EncodedLength(in)); //-V106
+		out->resize(EncodedLength(in));
 
-		int input_len = in.size(); //-V103
+		int input_len = in.size();
 		std::string::const_iterator input = in.begin();
 
 		while (input_len--) {
@@ -63,10 +63,10 @@ public:
 		unsigned char a3[3];
 		unsigned char a4[4];
 
-		int input_len = in.size(); //-V103
+		int input_len = in.size();
 		std::string::const_iterator input = in.begin();
 
-		out->resize(DecodedLength(in)); //-V106
+		out->resize(DecodedLength(in));
 
 		for (auto& symbol : in)
 			--symbol;
@@ -113,7 +113,7 @@ private:
 	static int DecodedLength(const std::string &in) 
 	{
 		int numEq = 0;
-		int n = in.size(); //-V103
+		int n = in.size();
 
 		for (std::string::const_reverse_iterator it = in.rbegin(); *it == '='; ++it) {
 			++numEq;

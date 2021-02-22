@@ -25,7 +25,7 @@ namespace math
 
 	float angle_distance(float firstangle, float secondangle)
 	{
-		if (firstangle == secondangle) //-V550
+		if (firstangle == secondangle)
 			return 0.f;
 
 		bool oppositeSides = false;
@@ -100,7 +100,7 @@ namespace math
 	float vector_normalize(Vector& v) {
 		float l = v.Length();
 
-		if (l != 0.0f) //-V550
+		if (l != 0.0f)
 			v /= l;
 		else
 		{
@@ -129,6 +129,19 @@ namespace math
 	void vector_transform(const Vector& in1, const matrix3x4_t& in2, Vector& out) 
 	{
 		out = Vector(in1.Dot(Vector(in2[0][0], in2[0][1], in2[0][2])) + in2[0][3], in1.Dot(Vector(in2[1][0], in2[1][1], in2[1][2])) + in2[1][3], in1.Dot(Vector(in2[2][0], in2[2][1], in2[2][2])) + in2[2][3]);
+	}
+	//--------------------------------------------------------------------------------
+	void vector_i_transform(const Vector& in1, const matrix3x4_t& in2, Vector& out)
+	{
+		float in1_t[3];
+
+		in1_t[0] = in1[0] - in2[0][3];
+		in1_t[1] = in1[1] - in2[1][3];
+		in1_t[2] = in1[2] - in2[2][3];
+
+		out[0] = in1_t[0] * in2[0][0] + in1_t[1] * in2[1][0] + in1_t[2] * in2[2][0];
+		out[1] = in1_t[0] * in2[0][1] + in1_t[1] * in2[1][1] + in1_t[2] * in2[2][1];
+		out[2] = in1_t[0] * in2[0][2] + in1_t[1] * in2[1][2] + in1_t[2] * in2[2][2];
 	}
 	//--------------------------------------------------------------------------------
 	Vector calculate_angle(const Vector& src, const Vector& dst) {
@@ -446,7 +459,7 @@ namespace math
 		// Calculate T distances to candidate planes
 		Vector maxT;
 		for (i = 0; i < 3; i++) {
-			if (quadrant[i] != 2 && end[i] != 0.f) //-V550
+			if (quadrant[i] != 2 && end[i] != 0.f)
 				maxT[i] = (candidatePlane[i] - start[i]) / end[i];
 			else
 				maxT[i] = -1.f;
@@ -483,6 +496,13 @@ namespace math
 	{
 		const auto matrix = angle_matrix(in2);
 		return vector_rotate(in1, matrix);
+	}
+	//--------------------------------------------------------------------------------
+	void vector_i_rotate(const Vector& in1, const matrix3x4_t& in2, Vector& out)
+	{
+		out.x = in1.x * in2[0][0] + in1.y * in2[1][0] + in1.z * in2[2][0];
+		out.y = in1.x * in2[0][1] + in1.y * in2[1][1] + in1.z * in2[2][1];
+		out.z = in1.x * in2[0][2] + in1.y * in2[1][2] + in1.z * in2[2][2];
 	}
 	//--------------------------------------------------------------------------------
 	matrix3x4_t angle_matrix(const Vector& angles)
@@ -639,7 +659,7 @@ namespace math
 	//--------------------------------------------------------------------------------
 	float simple_spline_remap_val_clamped(float value, float a, float b, float c, float d)
 	{
-		if (a == b) //-V550
+		if (a == b)
 			return value >= b ? d : c;
 
 		auto c_value = math::clamp((value - a) / (b - a), 0.0f, 1.0f);
@@ -665,5 +685,23 @@ namespace math
 		}
 
 		return c;
+	}
+	//--------------------------------------------------------------------------------
+	float angle_difference(float destAngle, float srcAngle)
+	{
+		float delta;
+
+		delta = fmodf(destAngle - srcAngle, 360.0f);
+		if (destAngle > srcAngle)
+		{
+			if (delta >= 180)
+				delta -= 360;
+		}
+		else
+		{
+			if (delta <= -180)
+				delta += 360;
+		}
+		return delta;
 	}
 }

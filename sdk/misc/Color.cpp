@@ -29,12 +29,12 @@ Color::Color(int _r, int _g, int _b, int _a)
 
 void Color::SetRawColor(int color32)
 {
-	*((int*)this) = color32; //-V1032
+	*((int*)this) = color32;
 }
 
 int Color::GetRawColor() const
 {
-	return *((int*)this); //-V1032
+	return *((int*)this);
 }
 
 __inline void Color::SetColor(int _r, int _g, int _b, int _a)
@@ -47,10 +47,10 @@ __inline void Color::SetColor(int _r, int _g, int _b, int _a)
 
 __inline void Color::SetColor(float _r, float _g, float _b, float _a)
 {
-	_CColor[0] = static_cast<unsigned char>(_r * 255.0f); //-V2004
-	_CColor[1] = static_cast<unsigned char>(_g * 255.0f); //-V2004
-	_CColor[2] = static_cast<unsigned char>(_b * 255.0f); //-V2004
-	_CColor[3] = static_cast<unsigned char>(_a * 255.0f); //-V2004
+	_CColor[0] = static_cast<unsigned char>(_r * 255.0f);
+	_CColor[1] = static_cast<unsigned char>(_g * 255.0f);
+	_CColor[2] = static_cast<unsigned char>(_b * 255.0f);
+	_CColor[3] = static_cast<unsigned char>(_a * 255.0f);
 }
 
 void Color::GetColor(int& _r, int& _g, int& _b, int& _a) const
@@ -63,7 +63,7 @@ void Color::GetColor(int& _r, int& _g, int& _b, int& _a) const
 
 bool Color::operator== (const Color& rhs) const
 {
-	return (*((int*)this) == *((int*)&rhs)); //-V1032
+	return (*((int*)this) == *((int*)&rhs));
 }
 
 bool Color::operator!= (const Color& rhs) const

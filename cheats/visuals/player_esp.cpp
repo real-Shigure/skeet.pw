@@ -38,7 +38,9 @@ public:
 void playeresp::paint_traverse()
 {
 	static auto alpha = 1.0f;
-	c_dormant_esp::get().start();
+
+	if (!g_ctx.globals.dormant_by_hook)
+		c_dormant_esp::get().start();
 
 	if (g_cfg.player.arrows && g_ctx.local()->is_alive())
 	{
@@ -57,7 +59,7 @@ void playeresp::paint_traverse()
 	auto radar_base = FindHudElement(hud_ptr, "CCSGO_HudRadar");
 	auto hud_radar = (CCSGO_HudRadar*)(radar_base - 0x14);
 
-	for (auto i = 1; i < m_globals()->m_maxclients; i++) //-V807
+	for (auto i = 1; i < m_globals()->m_maxclients; i++)
 	{
 		auto e = static_cast<player_t *>(m_entitylist()->GetClientEntity(i));
 
@@ -100,7 +102,7 @@ void playeresp::paint_traverse()
 			continue;
 		}
 
-		auto fast = 2.5f * m_globals()->m_frametime; //-V807
+		auto fast = 2.5f * m_globals()->m_frametime;
 		auto slow = 0.25f * m_globals()->m_frametime;
 
 		if (e->IsDormant())
@@ -124,23 +126,21 @@ void playeresp::paint_traverse()
 			auto color = g_cfg.player.type[type].skeleton_color;
 			color.SetAlpha(min(255.0f * esp_alpha_fade[i], color.a()));
 			
-#if RELEASE
-			draw_skeleton(e, color, e->m_CachedBoneData().Base());
-#else
-			auto records = &player_records[i]; //-V826
+			auto records = &player_records[i];
 
 			if (!records->empty() && g_ctx.local()->is_alive() && !e->IsDormant())
 			{
 				auto record = &records->front();
 
 				draw_skeleton(e, color, record->matrixes_data.main);
-				draw_skeleton(e, Color::Red, record->matrixes_data.zero);
-				draw_skeleton(e, Color::Green, record->matrixes_data.first);
-				draw_skeleton(e, Color::Blue, record->matrixes_data.second);
+
+				// note: simv0l - draw skeleton for other stored matrixes.
+				//draw_skeleton(e, Color::Red, record->matrixes_data.first);
+				//draw_skeleton(e, Color::Green, record->matrixes_data.zero);
+				//draw_skeleton(e, Color::Blue, record->matrixes_data.second);
 			}
 			else
 				draw_skeleton(e, color, e->m_CachedBoneData().Base());
-#endif
 		}
 
 		Box box;
@@ -162,7 +162,7 @@ void playeresp::paint_traverse()
 				{
 					if (hpbox.hp > hp)
 					{
-						if (hpbox.hp_difference_time) //-V550
+						if (hpbox.hp_difference_time)
 							hpbox.hp_difference += hpbox.hp - hp;
 						else
 							hpbox.hp_difference = hpbox.hp - hp;
@@ -568,9 +568,9 @@ void playeresp::draw_flags(player_t* e, const Box& box)
 				static auto stored_tick = 0;
 				static int crouched_ticks[65];
 
-				if (animstate->m_fDuckAmount) //-V550
+				if (animstate->m_fDuckAmount)
 				{
-					if (animstate->m_fDuckAmount < 0.9f && animstate->m_fDuckAmount > 0.5f) //-V550
+					if (animstate->m_fDuckAmount < 0.9f && animstate->m_fDuckAmount > 0.5f)
 					{
 						if (stored_tick != m_globals()->m_tickcount)
 						{
@@ -675,7 +675,7 @@ void playeresp::draw_multi_points(player_t* e)
 	if (!g_cfg.player.show_multi_points)
 		return;
 
-	if (!g_ctx.local()->is_alive()) //-V807
+	if (!g_ctx.local()->is_alive())
 		return;
 
 	if (g_ctx.local()->get_move_type() == MOVETYPE_NOCLIP)
@@ -689,7 +689,7 @@ void playeresp::draw_multi_points(player_t* e)
 	if (weapon->is_non_aim())
 		return;
 
-	auto records = &player_records[e->EntIndex()]; //-V826
+	auto records = &player_records[e->EntIndex()];
 
 	if (records->empty())
 		return;
@@ -699,7 +699,7 @@ void playeresp::draw_multi_points(player_t* e)
 	if (!record->valid(false))
 		return;
 
-	std::vector <scan_point> points; //-V826
+	std::vector <scan_point> points;
 	auto hitboxes = aim::get().get_hitboxes(record);
 
 	for (auto& hitbox : hitboxes)
@@ -708,33 +708,6 @@ void playeresp::draw_multi_points(player_t* e)
 		
 		for (auto& point : current_points)
 			points.emplace_back(point);
-	}
-
-	for (auto& point : points)
-	{
-		if (points.empty())
-			break;
-
-		if (point.hitbox == HITBOX_HEAD)
-			continue;
-
-		for (auto it = points.begin(); it != points.end(); ++it)
-		{
-			if (point.point == it->point)
-				continue;
-
-			auto first_angle = math::calculate_angle(g_ctx.globals.eye_pos, point.point);
-			auto second_angle = math::calculate_angle(g_ctx.globals.eye_pos, it->point);
-
-			auto distance = g_ctx.globals.eye_pos.DistTo(point.point);
-			auto fov = math::fast_sin(DEG2RAD(math::get_fov(first_angle, second_angle))) * distance;
-
-			if (fov < 5.0f)
-			{
-				points.erase(it);
-				break;
-			}
-		}
 	}
 
 	if (points.empty())

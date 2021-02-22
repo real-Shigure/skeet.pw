@@ -9,7 +9,7 @@ using SceneEnd_t = void(__thiscall*)(void*);
 void __fastcall hooks::hooked_sceneend(void* ecx, void* edx)
 {
 	static auto original_fn = renderview_hook->get_func_address <SceneEnd_t> (9);
-	g_ctx.local((player_t*)m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer()), true); //-V807
+	g_ctx.local((player_t*)m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer()), true);
 
 	if (!g_ctx.local())
 		return original_fn(ecx);
@@ -45,15 +45,15 @@ void __fastcall hooks::hooked_sceneend(void* ecx, void* edx)
 
 		static IMaterial* chams_materials[] =
 		{
-			m_materialsystem()->FindMaterial(crypt_str("legendware_chams"), nullptr), //-V807
-			m_materialsystem()->FindMaterial(crypt_str("legendware_metallic"), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("legendware_flat"), nullptr),
+			m_materialsystem()->FindMaterial(crypt_str("skeet.idb_chams"), nullptr),
+			m_materialsystem()->FindMaterial(crypt_str("skeet.idb_metallic"), nullptr),
+			m_materialsystem()->FindMaterial(crypt_str("skeet.idb_flat"), nullptr),
 			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
 			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
 			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
 			m_materialsystem()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
 			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("legendware_glow"), nullptr)
+			m_materialsystem()->FindMaterial(crypt_str("skeet.idb_glow"), nullptr)
 		};
 
 		auto material = chams_materials[g_cfg.player.type[type].ragdoll_chams_material];

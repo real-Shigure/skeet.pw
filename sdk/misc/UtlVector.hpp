@@ -90,7 +90,7 @@ public:
     void Sort(int(__cdecl* pfnCompare)(const T*, const T*));
 
     // Can't copy this unless we explicitly do it!
-    CUtlVector(CUtlVector const& vec) { assert(0); } //-V730
+    CUtlVector(CUtlVector const& vec) { assert(0); }
 
     // Grows the vector
     void GrowVector(int num = 1);

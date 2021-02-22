@@ -5,37 +5,28 @@
 
 enum
 {
-	MAIN,
-	NONE,
-	FIRST,
-	SECOND
-};
-
-enum resolver_type
-{
-	ORIGINAL,
-	BRUTEFORCE,
-	LBY,
-	TRACE,
-	DIRECTIONAL
+	MATRIX_MAIN,
+	MATRIX_NEGATIVE,
+	MATRIX_ZERO,
+	MATRIX_POSITIVE
 };
 
 enum resolver_side
 {
 	RESOLVER_ORIGINAL,
+	RESOLVER_NEGATIVE,
+	RESOLVER_LOW_NEGATIVE,
 	RESOLVER_ZERO,
-	RESOLVER_FIRST,
-	RESOLVER_SECOND,
-	RESOLVER_LOW_FIRST,
-	RESOLVER_LOW_SECOND
+	RESOLVER_LOW_POSITIVE,
+	RESOLVER_POSITIVE,
 };
 
 struct matrixes
 {
 	matrix3x4_t main[MAXSTUDIOBONES];
+	matrix3x4_t negative[MAXSTUDIOBONES];
 	matrix3x4_t zero[MAXSTUDIOBONES];
-	matrix3x4_t first[MAXSTUDIOBONES];
-	matrix3x4_t second[MAXSTUDIOBONES];
+	matrix3x4_t positive[MAXSTUDIOBONES];
 };
 
 class adjust_data;
@@ -45,8 +36,6 @@ class resolver
 	player_t* player = nullptr;
 	adjust_data* player_record = nullptr;
 
-	bool side = false;
-	bool fake = false;
 	bool was_first_bruteforce = false;
 	bool was_second_bruteforce = false;
 
@@ -59,25 +48,31 @@ public:
 	void resolve_yaw();
 	float resolve_pitch();
 
+	AnimationLayer resolver_layers[3][13];
+	AnimationLayer previous_layers[13];
+	float negative_goal_feet_yaw = 0.0f;
+	float zero_goal_feet_yaw = 0.0f;
+	float positive_goal_feet_yaw = 0.0f;
+
 	resolver_side last_side = RESOLVER_ORIGINAL;
 };
 
-class adjust_data //-V730
+class adjust_data
 {
 public:
 	player_t* player;
 	int i;
 
-	AnimationLayer layers[15];
+	AnimationLayer layers[13];
 	matrixes matrixes_data;
 
-	resolver_type type;
 	resolver_side side;
 
 	bool invalid;
 	bool immune;
 	bool dormant;
 	bool bot;
+	bool shot;
 
 	int flags;
 	int bone_count;
@@ -93,7 +88,7 @@ public:
 	Vector mins;
 	Vector maxs;
 
-	adjust_data() //-V730
+	adjust_data()
 	{
 		reset();
 	}
@@ -103,13 +98,13 @@ public:
 		player = nullptr;
 		i = -1;
 
-		type = ORIGINAL;
 		side = RESOLVER_ORIGINAL;
 
 		invalid = false;
 		immune = false;
 		dormant = false;
 		bot = false;
+		shot = false;
 
 		flags = 0;
 		bone_count = 0;
@@ -128,7 +123,6 @@ public:
 
 	adjust_data(player_t* e, bool store = true)
 	{
-		type = ORIGINAL;
 		side = RESOLVER_ORIGINAL;
 
 		invalid = false;
@@ -152,14 +146,11 @@ public:
 		immune = player->m_bGunGameImmunity() || player->m_fFlags() & FL_FROZEN;
 		dormant = player->IsDormant();
 
-#if RELEASE
 		player_info_t player_info;
 		m_engine()->GetPlayerInfo(i, &player_info);
 
 		bot = player_info.fakeplayer;
-#else
-		bot = false;
-#endif
+		shot = player->m_hActiveWeapon() && (player->m_hActiveWeapon()->m_fLastShotTime() == player->m_flSimulationTime());
 
 		flags = player->m_fFlags();
 		bone_count = player->m_CachedBoneData().Count();
@@ -182,7 +173,7 @@ public:
 			return;
 
 		memcpy(player->get_animlayers(), layers, player->animlayer_count() * sizeof(AnimationLayer));
-		memcpy(player->m_CachedBoneData().Base(), matrixes_data.main, player->m_CachedBoneData().Count() * sizeof(matrix3x4_t)); //-V807
+		memcpy(player->m_CachedBoneData().Base(), matrixes_data.main, player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
 
 		player->m_fFlags() = flags;
 		player->m_CachedBoneData().m_Size = bone_count;
@@ -202,7 +193,7 @@ public:
 
 	bool valid(bool extra_checks = true)
 	{
-		if (!this) //-V704
+		if (!this)
 			return false;
 
 		if (i > 0)
@@ -238,7 +229,7 @@ public:
 
 		auto correct = math::clamp(outgoing + incoming + util::get_interpolation(), 0.0f, sv_maxunlag->GetFloat());
 		
-		auto curtime = g_ctx.local()->is_alive() ? TICKS_TO_TIME(g_ctx.globals.fixed_tickbase) : m_globals()->m_curtime; //-V807
+		auto curtime = g_ctx.local()->is_alive() ? TICKS_TO_TIME(g_ctx.globals.fixed_tickbase) : m_globals()->m_curtime;
 		auto delta_time = correct - (curtime - simulation_time);
 
 		if (fabs(delta_time) > 0.2f)
@@ -263,15 +254,15 @@ class optimized_adjust_data
 {
 public:
 	int i;
+
 	player_t* player;
 
 	float simulation_time;
-	float duck_amount;
+	float speed;
 
-	Vector angles;
-	Vector origin;
+	bool shot;
 
-	optimized_adjust_data() //-V730
+	optimized_adjust_data()
 	{
 		reset();
 	}
@@ -279,13 +270,13 @@ public:
 	void reset()
 	{
 		i = 0;
+
 		player = nullptr;
 
 		simulation_time = 0.0f;
-		duck_amount = 0.0f;
+		speed = 0.0f;
 
-		angles.Zero();
-		origin.Zero();
+		shot = false;
 	}
 };
 

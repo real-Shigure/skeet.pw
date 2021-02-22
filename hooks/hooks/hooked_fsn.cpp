@@ -22,58 +22,6 @@ Vector flb_view_punch;
 Vector* aim_punch;
 Vector* view_punch;
 
-void weather()
-{
-	static ClientClass* client_class = nullptr;
-
-	if (!client_class)
-		client_class = m_client()->GetAllClasses();
-
-	while (client_class)
-	{
-		if (client_class->m_ClassID == CPrecipitation)
-			break;
-
-		client_class = client_class->m_pNext;
-	}
-
-	if (!client_class)
-		return;
-
-	auto entry = m_entitylist()->GetHighestEntityIndex() + 1;
-	auto serial = math::random_int(0, 4095);
-
-	g_ctx.globals.m_networkable = client_class->m_pCreateFn(entry, serial);
-
-	if (!g_ctx.globals.m_networkable)
-		return;
-
-	auto m_precipitation = g_ctx.globals.m_networkable->GetIClientUnknown()->GetBaseEntity();
-
-	if (!m_precipitation)
-		return;
-
-	g_ctx.globals.m_networkable->PreDataUpdate(0);
-	g_ctx.globals.m_networkable->OnPreDataChanged(0);
-
-	static auto m_nPrecipType = netvars::get().get_offset(crypt_str("CPrecipitation"), crypt_str("m_nPrecipType"));
-	static auto m_vecMins = netvars::get().get_offset(crypt_str("CBaseEntity"), crypt_str("m_vecMins"));
-	static auto m_vecMaxs = netvars::get().get_offset(crypt_str("CBaseEntity"), crypt_str("m_vecMaxs"));
-
-	*(int*)(uintptr_t(m_precipitation) + m_nPrecipType) = 0;
-	*(Vector*)(uintptr_t(m_precipitation) + m_vecMaxs) = Vector(32768.0f, 32768.0f, 32768.0f);
-	*(Vector*)(uintptr_t(m_precipitation) + m_vecMins) = Vector(-32768.0f, -32768.0f, -32768.0f);
-
-	m_precipitation->GetCollideable()->OBBMaxs() = Vector(32768.0f, 32768.0f, 32768.0f);
-	m_precipitation->GetCollideable()->OBBMins() = Vector(-32768.0f, -32768.0f, -32768.0f);
-
-	m_precipitation->set_abs_origin((m_precipitation->GetCollideable()->OBBMins() + m_precipitation->GetCollideable()->OBBMins()) * 0.5f);
-	m_precipitation->m_vecOrigin() = (m_precipitation->GetCollideable()->OBBMaxs() + m_precipitation->GetCollideable()->OBBMins()) * 0.5f;
-
-	m_precipitation->OnDataChanged(0);
-	m_precipitation->PostDataUpdate(0);
-}
-
 void remove_smoke()
 {
 	if (g_cfg.player.enable && g_cfg.esp.removals[REMOVALS_SMOKE])
@@ -147,17 +95,17 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 	flb_aim_punch.Zero();
 	flb_view_punch.Zero();
 
-	if (g_ctx.globals.updating_skins && m_clientstate()->iDeltaTick > 0) //-V807
+	if (g_ctx.globals.updating_skins && m_clientstate()->iDeltaTick > 0)
 		g_ctx.globals.updating_skins = false;
 
 	SkinChanger::run(stage);
 	local_animations::get().run(stage);
 
-	if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START && g_ctx.local()->is_alive()) //-V522 //-V807
+	if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START && g_ctx.local()->is_alive())
 	{
 		auto viewmodel = g_ctx.local()->m_hViewModel().Get();
 
-		if (viewmodel && engineprediction::get().viewmodel_data.weapon == viewmodel->m_hWeapon().Get() && engineprediction::get().viewmodel_data.sequence == viewmodel->m_nSequence() && engineprediction::get().viewmodel_data.animation_parity == viewmodel->m_nAnimationParity()) //-V807
+		if (viewmodel && engineprediction::get().viewmodel_data.weapon == viewmodel->m_hWeapon().Get() && engineprediction::get().viewmodel_data.sequence == viewmodel->m_nSequence() && engineprediction::get().viewmodel_data.animation_parity == viewmodel->m_nAnimationParity())
 		{
 			viewmodel->m_flCycle() = engineprediction::get().viewmodel_data.cycle;
 			viewmodel->m_flAnimTime() = engineprediction::get().viewmodel_data.animation_time;
@@ -181,7 +129,7 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 		remove_smoke();
 		misc::get().ragdolls();
 
-		if (g_cfg.esp.removals[REMOVALS_FLASH] && g_ctx.local()->m_flFlashDuration() && g_cfg.player.enable) //-V807
+		if (g_cfg.esp.removals[REMOVALS_FLASH] && g_ctx.local()->m_flFlashDuration() && g_cfg.player.enable)
 			g_ctx.local()->m_flFlashDuration() = 0.0f;
 
 		if (*(bool*)m_postprocessing() != (g_cfg.player.enable && g_cfg.esp.removals[REMOVALS_POSTPROCESSING] && (!g_cfg.esp.world_modulation || !g_cfg.esp.exposure)))
@@ -196,7 +144,7 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 			flb_view_punch = *view_punch;
 
 			(*aim_punch).Zero();
-			(*view_punch).Zero(); //-V656
+			(*view_punch).Zero();
 		}
 
 		auto get_original_scope = false;
@@ -225,24 +173,6 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 
 	if (stage == FRAME_NET_UPDATE_END)
 	{
-		static auto rain = false;
-
-		if (rain != g_cfg.esp.rain || g_ctx.globals.should_update_weather)
-		{
-			rain = g_cfg.esp.rain;
-
-			if (g_ctx.globals.m_networkable)
-			{
-				g_ctx.globals.m_networkable->Release();
-				g_ctx.globals.m_networkable = nullptr;
-			}
-
-			if (rain)
-				weather();
-
-			g_ctx.globals.should_update_weather = false;
-		}
-
 		g_cfg.player_list.refreshing = true;
 		g_cfg.player_list.players.clear();
 
@@ -279,7 +209,7 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 
 	if (stage == FRAME_RENDER_END)
 	{
-		static auto r_drawspecificstaticprop = m_cvar()->FindVar(crypt_str("r_drawspecificstaticprop")); //-V807
+		static auto r_drawspecificstaticprop = m_cvar()->FindVar(crypt_str("r_drawspecificstaticprop"));
 
 		if (r_drawspecificstaticprop->GetBool())
 			r_drawspecificstaticprop->SetValue(FALSE);
@@ -300,21 +230,21 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 		misc::get().FullBright();
 		misc::get().ViewModel();
 
-		static auto cl_foot_contact_shadows = m_cvar()->FindVar(crypt_str("cl_foot_contact_shadows")); //-V807
+		static auto cl_foot_contact_shadows = m_cvar()->FindVar(crypt_str("cl_foot_contact_shadows"));
 
 		if (cl_foot_contact_shadows->GetBool())
 			cl_foot_contact_shadows->SetValue(FALSE);
 
 		static auto zoom_sensitivity_ratio_mouse = m_cvar()->FindVar(crypt_str("zoom_sensitivity_ratio_mouse"));
 
-		if (g_cfg.player.enable && g_cfg.esp.removals[REMOVALS_ZOOM] && g_cfg.esp.fix_zoom_sensivity && zoom_sensitivity_ratio_mouse->GetFloat() == 1.0f) //-V550
+		if (g_cfg.player.enable && g_cfg.esp.removals[REMOVALS_ZOOM] && g_cfg.esp.fix_zoom_sensivity && zoom_sensitivity_ratio_mouse->GetFloat() == 1.0f)
 			zoom_sensitivity_ratio_mouse->SetValue(0.0f);
 		else if ((!g_cfg.player.enable || !g_cfg.esp.removals[REMOVALS_ZOOM] || !g_cfg.esp.fix_zoom_sensivity) && !zoom_sensitivity_ratio_mouse->GetFloat())
 			zoom_sensitivity_ratio_mouse->SetValue(1.0f);
 
 		static auto r_modelAmbientMin = m_cvar()->FindVar(crypt_str("r_modelAmbientMin"));
 
-		if (g_cfg.esp.world_modulation && g_cfg.esp.ambient && r_modelAmbientMin->GetFloat() != g_cfg.esp.ambient * 0.05f) //-V550
+		if (g_cfg.esp.world_modulation && g_cfg.esp.ambient && r_modelAmbientMin->GetFloat() != g_cfg.esp.ambient * 0.05f)
 			r_modelAmbientMin->SetValue(g_cfg.esp.ambient * 0.05f);
 		else if ((!g_cfg.esp.world_modulation || !g_cfg.esp.ambient) && r_modelAmbientMin->GetFloat())
 			r_modelAmbientMin->SetValue(0.0f);
@@ -325,7 +255,7 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 		auto current_shot = g_ctx.shots.end();
 
 		auto net_channel = m_engine()->GetNetChannelInfo();
-		auto latency = net_channel ? net_channel->GetLatency(FLOW_OUTGOING) + net_channel->GetLatency(FLOW_INCOMING) + 1.0f : 0.0f; //-V807
+		auto latency = net_channel ? net_channel->GetLatency(FLOW_OUTGOING) + net_channel->GetLatency(FLOW_INCOMING) + 1.0f : 0.0f;
 
 		for (auto& shot = g_ctx.shots.begin(); shot != g_ctx.shots.end(); ++shot)
 		{
@@ -353,7 +283,7 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 		{
 			if (!current_shot->latency)
 			{
-				current_shot->shot_info.should_log = true; //-V807
+				current_shot->shot_info.should_log = true;
 
 				if (!current_shot->hurt_player)
 				{
@@ -363,13 +293,11 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 					{
 						current_shot->shot_info.result = crypt_str("Resolver");
 
-						++g_ctx.globals.missed_shots[current_shot->last_target]; //-V807
+						++g_ctx.globals.missed_shots[current_shot->last_target];
 						lagcompensation::get().player_resolver[current_shot->last_target].last_side = (resolver_side)current_shot->side;
 
-#if BETA
 						if (g_cfg.misc.events_to_log[EVENTLOG_HIT])
-							eventlogs::get().add(crypt_str("Missed shot due to resolver"));
-#endif
+							eventlogs::get().add(crypt_str("Missed shot due to bad resolve"));
 					}
 					else if (g_cfg.misc.events_to_log[EVENTLOG_HIT])
 					{

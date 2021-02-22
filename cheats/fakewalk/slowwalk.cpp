@@ -13,10 +13,10 @@ void slowwalk::create_move(CUserCmd* m_pcmd, float custom_speed)
 	if (!weapon_info)
 		return;
 
-	if (custom_speed == -1.0f) //-V550
+	if (custom_speed == -1.0f)
 		g_ctx.globals.slowwalking = true;
 
-	auto modifier = custom_speed == -1.0f ? 0.3f : custom_speed; //-V550
+	auto modifier = custom_speed == -1.0f ? 0.3f : custom_speed;
 	auto max_speed = modifier * (g_ctx.globals.scoped ? weapon_info->flMaxPlayerSpeedAlt : weapon_info->flMaxPlayerSpeed);
 
 	if (!g_ctx.globals.weapon->is_non_aim())
