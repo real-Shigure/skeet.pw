@@ -6,6 +6,7 @@
 #include "utils\recv.h"
 #include "utils\imports.h"
 #include "nSkinz\SkinChanger.h"
+//#include "rpc/rpc.cpp"
 using namespace std;
 
 PVOID base_address = nullptr;
@@ -88,9 +89,7 @@ DWORD WINAPI main(PVOID base)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	base_address = base;
-
 	setup_sounds();
-	
 	setup_skins();
 
 	setup_netvars();
