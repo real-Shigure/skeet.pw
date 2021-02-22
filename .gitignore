@@ -37,4 +37,5 @@
 /release
 *.rps
 /Loader
+/build
 
