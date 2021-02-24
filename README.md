@@ -1,7 +1,7 @@
 # skeet.pw
 legendware paste with XenForo Loader
 
-Updated
+Updated. Unstable 
 
 Build with Visual Studio 2017 or with 2017 Build Tools
 
