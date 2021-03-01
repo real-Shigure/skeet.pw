@@ -1,7 +1,7 @@
 # skeet.pw
-legendware paste with XenForo Loader
+legendware paste 
 
-Updated. Unstable 
+Updated. Unstable Inject With CSGhost 3.0. 3.1 will error
 
 If any  issue make a github issue Thank you.
 
