@@ -1,7 +1,9 @@
 # skeet.pw
-legendware paste with XenForo Loader
+legendware paste 
 
-Updated. Unstable 
+Updated. Unstable Inject With CSGhost 3.0. 3.1 will error
+
+If any  issue make a github issue Thank you.
 
 Build with Visual Studio 2017 or with 2017 Build Tools
 
