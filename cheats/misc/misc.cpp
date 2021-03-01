@@ -16,7 +16,7 @@ void misc::watermark()
 	auto width = 0, height = 0;
 	m_engine()->GetScreenSize(width, height);
 
-	auto watermark = crypt_str("skeet.idb | ") + g_ctx.username /*+ crypt_str(" | ")*/ + g_ctx.globals.time;
+	auto watermark = crypt_str("skeet.pw | ") + g_ctx.username /*+ crypt_str(" | ")*/ + g_ctx.globals.time;
 
 	if (m_engine()->IsInGame())
 	{
