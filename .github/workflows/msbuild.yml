@@ -44,3 +44,12 @@ jobs:
       run: msbuild skeet.pw.sln /m /p:Configuration=${{env.BUILD_CONFIGURATION}}
       env:
         DXSDK_DIR: ${{ github.workspace }}\DXSDK\
+        
+    - name: SHA1
+      working-directory: ${{env.GITHUB_WORKSPACE}}/build/Win32/Release/
+      run: sha1sum skeet.pw.dll > skeet.pw.dll.sha1
+      
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Release
+        path: ${{env.GITHUB_WORKSPACE}}/build/Win32/Release/
