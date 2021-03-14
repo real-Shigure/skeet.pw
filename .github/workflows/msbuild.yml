@@ -7,6 +7,7 @@ env:
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: Win32
 
 jobs:
   build:
@@ -37,14 +38,10 @@ jobs:
          rm -fR _DX*_ _DX*_.exe
       shell: bash
 
-    - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
-
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild skeet.pw.sln /m /p:Configuration=${{env.BUILD_CONFIGURATION}}
+      run: msbuild skeet.pw.sln /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platfort=${{env.BUILD_PLATFORM}}
       env:
         DXSDK_DIR: ${{ github.workspace }}\DXSDK\
