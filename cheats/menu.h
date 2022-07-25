@@ -6,8 +6,6 @@ public:
 	void draw( bool is_open );
 	void menu_setup(ImGuiStyle &style);
 
-	float dpi_scale = 1.f;
-
 	ImFont* futura;
 	ImFont* futura_large;
 	ImFont* futura_small;
@@ -51,7 +49,7 @@ private:
 
 	int active_tab_index;
 	ImGuiStyle style;
-	int width = 850, height = 560;
+	int width = 850, height = 521;
 	float child_height;
 
 	float preview_alpha = 1.f;

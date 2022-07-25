@@ -47,7 +47,7 @@ int netvars::get_prop(RecvTable *recvTable, const char *propName, RecvProp **pro
 				extrOffs += (recvProp->offset + tmp);
 		}
 
-		if (strcmp(recvProp->name, propName)) //-V526
+		if (strcmp(recvProp->name, propName))
 			continue;
 
 		if (prop)

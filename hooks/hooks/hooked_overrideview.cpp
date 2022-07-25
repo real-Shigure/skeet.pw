@@ -24,10 +24,10 @@ void __stdcall hooks::hooked_overrideview(CViewSetup* viewsetup)
 
 		if (!fakeducking && g_ctx.globals.fakeducking)
 			fakeducking = true;
-		else if (fakeducking && !g_ctx.globals.fakeducking && (!g_ctx.local()->get_animation_state()->m_fDuckAmount || g_ctx.local()->get_animation_state()->m_fDuckAmount == 1.0f)) //-V550
+		else if (fakeducking && !g_ctx.globals.fakeducking && (!g_ctx.local()->get_animation_state()->m_fDuckAmount || g_ctx.local()->get_animation_state()->m_fDuckAmount == 1.0f))
 			fakeducking = false;
 
-		if (!g_ctx.local()->is_alive()) //-V807
+		if (!g_ctx.local()->is_alive())
 			fakeducking = false;
 
 		auto weapon = g_ctx.local()->m_hActiveWeapon().Get();
@@ -79,7 +79,7 @@ void __stdcall hooks::hooked_overrideview(CViewSetup* viewsetup)
 
 			if (m_input()->m_fCameraInThirdPerson)
 			{
-				auto camera_angles = Vector(m_input()->m_vecCameraOffset.x, m_input()->m_vecCameraOffset.y, 0.0f); //-V807
+				auto camera_angles = Vector(m_input()->m_vecCameraOffset.x, m_input()->m_vecCameraOffset.y, 0.0f);
 				auto camera_forward = ZERO;
 
 				math::angle_vectors(camera_angles, camera_forward);
@@ -104,15 +104,15 @@ void thirdperson(bool fakeducking)
 	else if (in_thirdperson && !g_ctx.globals.in_thirdperson)
 		in_thirdperson = false;
 
-	if (g_ctx.local()->is_alive() && in_thirdperson) //-V807
+	if (g_ctx.local()->is_alive() && in_thirdperson)
 	{
-		auto distance = (float)g_cfg.misc.thirdperson_distance;
-
 		Vector angles;
 		m_engine()->GetViewAngles(angles);
 
 		Vector inverse_angles;
 		m_engine()->GetViewAngles(inverse_angles);
+
+		auto distance = (float)g_cfg.misc.thirdperson_distance;
 
 		inverse_angles.z = distance;
 

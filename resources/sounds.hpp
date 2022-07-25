@@ -2,6 +2,7 @@
 
 __forceinline void setup_sounds()
 {
+	// TODO: simv0l - change sounds directory to appdata/skeet.idb.
 	CreateDirectory("csgo\\sound", nullptr);
 	FILE* file = nullptr;
 

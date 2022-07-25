@@ -5,6 +5,40 @@
 #include <fstream>
 #include "..\configs\configs.h"
 
+bool LoadPlayerMdlOnce = false;
+
+// Load custom model
+bool LoadModel(const char* thisModelName)
+{
+	const auto CustomModel = m_networkStringTableContainer()->findTable("modelprecache");
+
+	if (CustomModel)
+	{
+		m_modelinfo()->GetModelIndex(thisModelName);
+		int MdlNum = CustomModel->addString(false, thisModelName);
+		if (MdlNum == NULL)
+			return false;
+	}
+	return true;
+}
+
+// one by one
+void InitCustomModels()
+{
+	// only once, no need to spam this every frame...
+	// cache will be reloaded each new map
+	if (!LoadPlayerMdlOnce)
+	{
+		LoadModel("models/player/custom_player/kuristaja/cso2/mila/mila.mdl");
+		LoadModel("models/player/custom_player/kuristaja/cso2/choi/choi.mdl");
+		LoadModel("models/player/custom_player/kuristaja/hitler/hitler.mdl");
+		LoadModel("models/player/custom_player/2019x/dogirl/a0.mdl");
+
+		LoadPlayerMdlOnce = true;
+	}
+}
+
+// todo - separation for various team models.
 static const char* player_model_index_t[] =
 {
 	"models/player/custom_player/legacy/tm_phoenix_variantf.mdl",
@@ -18,11 +52,7 @@ static const char* player_model_index_t[] =
 	"models/player/custom_player/legacy/tm_leet_varianti.mdl",
 	"models/player/custom_player/legacy/tm_balkan_variantg.mdl",
 	"models/player/custom_player/legacy/tm_balkan_varianth.mdl",
-	"models/player/custom_player/legacy/tm_leet_variantf.mdl"
-};
-
-static const char* player_model_index_ct[] =
-{
+	"models/player/custom_player/legacy/tm_leet_variantf.mdl",
 	"models/player/custom_player/legacy/ctm_st6_variante.mdl",
 	"models/player/custom_player/legacy/ctm_st6_variantk.mdl",
 	"models/player/custom_player/legacy/ctm_fbi_variantf.mdl",
@@ -31,7 +61,40 @@ static const char* player_model_index_ct[] =
 	"models/player/custom_player/legacy/ctm_st6_variantg.mdl",
 	"models/player/custom_player/legacy/ctm_st6_variantm.mdl",
 	"models/player/custom_player/legacy/ctm_st6_varianti.mdl",
-	"models/player/custom_player/legacy/ctm_fbi_variantb.mdl"
+	"models/player/custom_player/legacy/ctm_fbi_variantb.mdl",
+	/*"models/player/custom_player/kuristaja/cso2/mila/mila.mdl",
+	"models/player/custom_player/kuristaja/cso2/choi/choi.mdl",
+	"models/player/custom_player/kuristaja/hitler/hitler.mdl",
+	"models/player/custom_player/2019x/dogirl/a0.mdl"*/
+};
+
+static const char* player_model_index_ct[] =
+{
+	"models/player/custom_player/legacy/tm_phoenix_variantf.mdl",
+	"models/player/custom_player/legacy/tm_phoenix_varianth.mdl",
+	"models/player/custom_player/legacy/tm_leet_variantg.mdl",
+	"models/player/custom_player/legacy/tm_balkan_varianti.mdl",
+	"models/player/custom_player/legacy/tm_leet_varianth.mdl",
+	"models/player/custom_player/legacy/tm_phoenix_variantg.mdl",
+	"models/player/custom_player/legacy/tm_balkan_variantf.mdl",
+	"models/player/custom_player/legacy/tm_balkan_variantj.mdl",
+	"models/player/custom_player/legacy/tm_leet_varianti.mdl",
+	"models/player/custom_player/legacy/tm_balkan_variantg.mdl",
+	"models/player/custom_player/legacy/tm_balkan_varianth.mdl",
+	"models/player/custom_player/legacy/tm_leet_variantf.mdl",
+	"models/player/custom_player/legacy/ctm_st6_variante.mdl",
+	"models/player/custom_player/legacy/ctm_st6_variantk.mdl",
+	"models/player/custom_player/legacy/ctm_fbi_variantf.mdl",
+	"models/player/custom_player/legacy/ctm_sas_variantf.mdl",
+	"models/player/custom_player/legacy/ctm_fbi_variantg.mdl",
+	"models/player/custom_player/legacy/ctm_st6_variantg.mdl",
+	"models/player/custom_player/legacy/ctm_st6_variantm.mdl",
+	"models/player/custom_player/legacy/ctm_st6_varianti.mdl",
+	"models/player/custom_player/legacy/ctm_fbi_variantb.mdl",
+	/*"models/player/custom_player/kuristaja/cso2/mila/mila.mdl",
+	"models/player/custom_player/kuristaja/cso2/choi/choi.mdl",
+	"models/player/custom_player/kuristaja/hitler/hitler.mdl",
+	"models/player/custom_player/2019x/dogirl/a0.mdl"*/
 };
 
 Memory memory;
@@ -59,7 +122,7 @@ static void erase_override_if_exists_by_index(const int definition_index) noexce
 
 static void apply_config_on_attributable_item(attributableitem_t* item, const item_setting* config, const unsigned xuid_low) noexcept
 {
-    item->m_iItemIDHigh() = -1; //-V522
+    item->m_iItemIDHigh() = -1;
     item->m_iAccountID() = xuid_low;
 	item->m_flFallbackWear() = config->wear;
 
@@ -184,7 +247,7 @@ static void post_data_update_start(player_t* local) noexcept
 
 	for (auto weapon_handle = 0; weapons[weapon_handle].IsValid(); weapon_handle++) 
 	{
-		auto weapon = (weapon_t*)m_entitylist()->GetClientEntityFromHandle(weapons[weapon_handle]); //-V807
+		auto weapon = (weapon_t*)m_entitylist()->GetClientEntityFromHandle(weapons[weapon_handle]);
 
 		if (!weapon)
 			continue;
@@ -244,9 +307,12 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 	if (!g_ctx.local())
 		return;
 
+	// load custom models
+	InitCustomModels();
+
 	post_data_update_start(g_ctx.local());
 
-	if (!g_ctx.local()->is_alive()) //-V807
+	if (!g_ctx.local()->is_alive())
 	{
 		UpdateRequired = false;
 		hudUpdateRequired = false;
@@ -290,7 +356,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 				}
 			}
 
-			if (SkinChanger::player_model_indexes.find(player_model_index[player_model - 1]) == SkinChanger::player_model_indexes.end()) //-V522
+			if (SkinChanger::player_model_indexes.find(player_model_index[player_model - 1]) == SkinChanger::player_model_indexes.end())
 				SkinChanger::player_model_indexes.emplace(player_model_index[player_model - 1], m_modelinfo()->GetModelIndex(player_model_index[player_model - 1]));
 
 			g_ctx.local()->set_model_index(SkinChanger::player_model_indexes[player_model_index[player_model - 1]]);

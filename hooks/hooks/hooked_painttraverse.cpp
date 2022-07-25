@@ -36,8 +36,12 @@ bool reload_fonts()
 
 void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL panel, bool force_repaint, bool allow_force)
 {
-	static auto original_fn = panel_hook->get_func_address <PaintTraverse_t> (41);
-	g_ctx.local((player_t*)m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer()), true); //-V807
+	static auto original_fn = panel_hook->get_func_address <PaintTraverse_t>(41);
+	g_ctx.local((player_t*)m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer()), true);
+
+	// reset if not ingame, or is not connected
+	if (!m_engine()->IsInGame() || !m_engine()->IsConnected())
+		LoadPlayerMdlOnce = false;
 
 	static auto set_console = true;
 
@@ -45,7 +49,7 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 	{
 		set_console = false;
 
-		m_cvar()->FindVar(crypt_str("developer"))->SetValue(FALSE); //-V807
+		m_cvar()->FindVar(crypt_str("developer"))->SetValue(FALSE);
 		m_cvar()->FindVar(crypt_str("con_filter_enable"))->SetValue(TRUE);
 		m_cvar()->FindVar(crypt_str("con_filter_text"))->SetValue(crypt_str(""));
 		m_engine()->ExecuteClientCmd(crypt_str("clear"));
@@ -66,7 +70,7 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 	static vgui::VPANEL panel_id = 0;
 	static auto in_game = false;
 
-	if (!in_game && m_engine()->IsInGame()) //-V807
+	if (!in_game && m_engine()->IsInGame())
 	{
 		in_game = true;
 
@@ -104,9 +108,6 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 	else if (in_game && !m_engine()->IsInGame())
 	{
 		in_game = false;
-
-		g_ctx.globals.should_update_weather = true;
-		g_ctx.globals.m_networkable = nullptr;
 
 		g_cfg.player_list.players.clear();
 
@@ -152,8 +153,8 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 		};
 
 		fonts[LOGS] = create_font(crypt_str("Lucida Console"), 10, FW_MEDIUM, FONTFLAG_DROPSHADOW);
-		fonts[ESP] = create_font(crypt_str("Smallest Pixel-7"), 11, FW_MEDIUM, FONTFLAG_OUTLINE);
-		fonts[NAME] = create_font(crypt_str("Verdana"), 12, FW_MEDIUM, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
+		fonts[ESP] = create_font(crypt_str("Verdana"), 11, NULL, FONTFLAG_DROPSHADOW | FONTFLAG_ANTIALIAS);
+		fonts[NAME] = create_font(crypt_str("Verdana"), 12, NULL, FONTFLAG_DROPSHADOW | FONTFLAG_ANTIALIAS);
 		fonts[SUBTABWEAPONS] = create_font(crypt_str("undefeated"), 13, FW_MEDIUM, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 		fonts[KNIFES] = create_font(crypt_str("icomoon"), 13, FW_MEDIUM, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 		fonts[GRENADES] = create_font(crypt_str("undefeated"), 20, FW_MEDIUM, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
@@ -202,7 +203,6 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 				playeresp::get().paint_traverse();
 			}
 
-			misc::get().zeus_range();
 			misc::get().desync_arrows();
 
 			auto weapon = g_ctx.local()->m_hActiveWeapon().Get();
@@ -252,7 +252,6 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 			otheresp::get().penetration_reticle();
 			otheresp::get().automatic_peek_indicator();
 
-			misc::get().ChatSpamer();
 			misc::get().spectators_list();
 
 			bullettracers::get().draw_beams();
@@ -271,7 +270,7 @@ void __fastcall hooks::hooked_painttraverse(void* ecx, void* edx, vgui::VPANEL p
 		{
 			auto latency = m_engine()->IsPlayingDemo() ? 0.0f : nci->GetAvgLatency(FLOW_OUTGOING);
 
-			if (latency) //-V550
+			if (latency)
 			{
 				static auto cl_updaterate = m_cvar()->FindVar(crypt_str("cl_updaterate"));
 				latency -= 0.5f / cl_updaterate->GetFloat();

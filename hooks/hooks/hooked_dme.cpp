@@ -11,7 +11,7 @@ IMaterial* CreateMaterial(bool lit, const std::string& material_data)
 	static auto created = 0;
 	std::string type = lit ? crypt_str("VertexLitGeneric") : crypt_str("UnlitGeneric");
 
-	auto matname = crypt_str("legendware_") + std::to_string(created);
+	auto matname = crypt_str("skeet.idb_") + std::to_string(created);
 	++created;
 
 	auto keyValues = new KeyValues(matname.c_str());
@@ -58,7 +58,7 @@ void __stdcall hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	if (m_modelrender()->IsForcedMaterialOverride() && !is_weapon && !is_arms && !is_sleeve)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
-	m_renderview()->SetColorModulation(1.0f, 1.0f, 1.0f); //-V807
+	m_renderview()->SetColorModulation(1.0f, 1.0f, 1.0f);
 
 	if (!is_player && !is_weapon && !is_arms && !is_sleeve)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
@@ -112,7 +112,7 @@ void __stdcall hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				"$wireframe"				"0"
 			}
 		)#")),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr), //-V807
+		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
 		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
 		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
 		m_materialsystem()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
@@ -200,7 +200,7 @@ void __stdcall hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 								m_renderview()->SetBlend(alpha * alpha_modifier);
 								util::color_modulate(backtrack_color, backtrack_material);
 
-								backtrack_material->IncrementReferenceCount(); //-V807
+								backtrack_material->IncrementReferenceCount();
 								backtrack_material->SetMaterialVarFlag(MATERIAL_VAR_IGNOREZ, true);
 
 								m_modelrender()->ForcedMaterialOverride(backtrack_material);
@@ -219,7 +219,7 @@ void __stdcall hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						g_cfg.player.type[ENEMY].xqz_color[2] / 255.0f
 					};
 
-					m_renderview()->SetBlend(alpha * alpha_modifier); //-V807
+					m_renderview()->SetBlend(alpha * alpha_modifier);
 					util::color_modulate(xqz_color, material);
 
 					material->IncrementReferenceCount();
@@ -377,7 +377,7 @@ void __stdcall hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 							original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 							m_modelrender()->ForcedMaterialOverride(nullptr);
 						}
-					} //-V807
+					}
 
 					if (g_cfg.player.type[ENEMY].double_material && g_cfg.player.type[ENEMY].chams_type != 6)
 					{

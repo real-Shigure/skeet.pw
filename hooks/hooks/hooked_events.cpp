@@ -130,7 +130,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 	else if (!strcmp(event_name, crypt_str("bullet_impact")))
 	{
 		auto user_id = event->GetInt(crypt_str("userid"));
-		auto user = m_engine()->GetPlayerForUserID(user_id); //-V807
+		auto user = m_engine()->GetPlayerForUserID(user_id);
 
 		if (user == m_engine()->GetLocalPlayer())
 		{
@@ -153,12 +153,12 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 				break;
 			}
 
-			if (current_shot && aim::get().last_target[current_shot->last_target].record.player->valid(true, false)) //-V807
+			if (current_shot && aim::get().last_target[current_shot->last_target].record.player->valid(true, false))
 			{
 				auto backup_data = adjust_data(aim::get().last_target[current_shot->last_target].record.player);
 				aim::get().last_target[current_shot->last_target].record.adjust_player();
 
-				trace_t trace, trace_zero, trace_first, trace_second;
+				trace_t trace, trace_negative, trace_zero, trace_positive;
 				Ray_t ray;
 
 				ray.Init(aim::get().last_shoot_position, position);
@@ -166,20 +166,20 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 
 				if (aim::get().last_target[current_shot->last_target].data.point.safe)
 				{
-					memcpy(aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), aim::get().last_target[current_shot->last_target].record.matrixes_data.zero, aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t)); //-V807
+					memcpy(aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), aim::get().last_target[current_shot->last_target].record.matrixes_data.negative, aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, aim::get().last_target[current_shot->last_target].record.player, &trace_negative);
+
+					memcpy(aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), aim::get().last_target[current_shot->last_target].record.matrixes_data.zero, aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
 					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, aim::get().last_target[current_shot->last_target].record.player, &trace_zero);
 
-					memcpy(aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), aim::get().last_target[current_shot->last_target].record.matrixes_data.first, aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t)); //-V807
-					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, aim::get().last_target[current_shot->last_target].record.player, &trace_first);
-
-					memcpy(aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), aim::get().last_target[current_shot->last_target].record.matrixes_data.second, aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t)); //-V807
-					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, aim::get().last_target[current_shot->last_target].record.player, &trace_second);
+					memcpy(aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), aim::get().last_target[current_shot->last_target].record.matrixes_data.positive, aim::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, aim::get().last_target[current_shot->last_target].record.player, &trace_negative);
 				}
 
 				auto hit = trace.hit_entity == aim::get().last_target[current_shot->last_target].record.player;
 
 				if (aim::get().last_target[current_shot->last_target].data.point.safe)
-					hit = hit && trace_zero.hit_entity == aim::get().last_target[current_shot->last_target].record.player && trace_first.hit_entity == aim::get().last_target[current_shot->last_target].record.player && trace_second.hit_entity == aim::get().last_target[current_shot->last_target].record.player;
+					hit = hit && trace_zero.hit_entity == aim::get().last_target[current_shot->last_target].record.player && trace_negative.hit_entity == aim::get().last_target[current_shot->last_target].record.player && trace_negative.hit_entity == aim::get().last_target[current_shot->last_target].record.player;
 
 				if (hit)
 					current_shot->impact_hit_player = true;
@@ -198,7 +198,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 		auto attacker = event->GetInt(crypt_str("attacker"));
 		auto user = event->GetInt(crypt_str("userid"));
 
-		auto attacker_id = m_engine()->GetPlayerForUserID(attacker); //-V807
+		auto attacker_id = m_engine()->GetPlayerForUserID(attacker);
 		auto user_id = m_engine()->GetPlayerForUserID(user);
 
 		if (g_ctx.local()->is_alive() && attacker_id == m_engine()->GetLocalPlayer() && user_id != m_engine()->GetLocalPlayer())

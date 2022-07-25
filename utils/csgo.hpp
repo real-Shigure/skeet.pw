@@ -80,6 +80,8 @@ public:
 	ILocalize * m_localize();
 	IBaseFileSystem* m_basefilesys();
 
+	NetworkStringTableContainer* m_networkStringTableContainer();
+
 	DWORD m_postprocessing();
 	DWORD m_ccsplayerrenderablevftable();
 private:
@@ -116,6 +118,8 @@ private:
 	CSGameRulesProxy * p_gamerules = nullptr;
 	ILocalize * p_localize = nullptr;
 	IBaseFileSystem* p_basefilesys = nullptr;
+
+	NetworkStringTableContainer* p_networkStringTableContainer = nullptr;
 
 	DWORD p_postprocessing = 0;
 	DWORD p_ccsplayerrenderablevftable = 0;

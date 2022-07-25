@@ -10,7 +10,6 @@
 #include "..\..\cheats\legitbot\legitbot.h"
 #include "..\..\cheats\misc\bunnyhop.h"
 #include "..\..\cheats\misc\airstrafe.h"
-#include "..\..\cheats\misc\spammers.h"
 #include "..\..\cheats\fakewalk\slowwalk.h"
 #include "..\..\cheats\misc\misc.h"
 #include "..\..\cheats\misc\logs.h"
@@ -47,9 +46,8 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 		return original_fn(m_clientmode(), smt, m_pcmd);
 
 	misc::get().rank_reveal();
-	spammers::get().clan_tag();
 
-	if (!g_ctx.local()->is_alive()) //-V807
+	if (!g_ctx.local()->is_alive())
 		return original_fn(m_clientmode(), smt, m_pcmd);
 
 	uintptr_t* frame_ptr;
@@ -149,15 +147,13 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 	g_ctx.globals.slowwalking = false;
 	g_ctx.globals.original_forwardmove = m_pcmd->m_forwardmove;
 	g_ctx.globals.original_sidemove = m_pcmd->m_sidemove;
+	g_ctx.globals.wish_angle = m_pcmd->m_viewangles;
 
 	antiaim::get().breaking_lby = false;
 
-	auto wish_angle = m_pcmd->m_viewangles;
-
 	misc::get().fast_stop(m_pcmd);
 
-	if (g_cfg.misc.bunnyhop)
-		bunnyhop::get().create_move();
+	bunnyhop::get().create_move();
 
 	misc::get().SlideWalk(m_pcmd);
 
@@ -167,10 +163,7 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 
 	GrenadePrediction::get().Tick(m_pcmd->m_buttons);
 
-	if (g_cfg.misc.crouch_in_air && !(g_ctx.local()->m_fFlags() & FL_ONGROUND))
-		m_pcmd->m_buttons |= IN_DUCK;
-
-	engineprediction::get().prediction_data.reset(); //-V807
+	engineprediction::get().prediction_data.reset();
 	engineprediction::get().setup();
 
 	engineprediction::get().predict(m_pcmd);
@@ -181,7 +174,7 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 	if (g_cfg.misc.airstrafe)
 		airstrafe::get().create_move(m_pcmd);
 
-	if (key_binds::get().get_key_bind_state(19) && engineprediction::get().backup_data.flags & FL_ONGROUND && !(g_ctx.local()->m_fFlags() & FL_ONGROUND)) //-V807
+	if (key_binds::get().get_key_bind_state(19) && engineprediction::get().backup_data.flags & FL_ONGROUND && !(g_ctx.local()->m_fFlags() & FL_ONGROUND))
 		m_pcmd->m_buttons |= IN_JUMP;
 
 	if (key_binds::get().get_key_bind_state(21))
@@ -216,17 +209,17 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 	zeusbot::get().run(m_pcmd);
 	knifebot::get().run(m_pcmd);
 
-	misc::get().automatic_peek(m_pcmd, wish_angle.y);
+	misc::get().automatic_peek(m_pcmd);
 
 	antiaim::get().desync_angle = 0.0f;
 	antiaim::get().create_move(m_pcmd);
 
-	if (m_gamerules()->m_bIsValveDS() && m_clientstate()->iChokedCommands >= 6) //-V648
+	if (m_gamerules()->m_bIsValveDS() && m_clientstate()->iChokedCommands >= 6)
 	{
 		g_ctx.send_packet = true;
 		fakelag::get().started_peeking = false;
 	}
-	else if (!m_gamerules()->m_bIsValveDS() && m_clientstate()->iChokedCommands >= 16) //-V648
+	else if (!m_gamerules()->m_bIsValveDS() && m_clientstate()->iChokedCommands >= 16)
 	{
 		g_ctx.send_packet = true;
 		fakelag::get().started_peeking = false;
@@ -319,7 +312,7 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 			g_ctx.globals.double_tap_aim = false;
 	}
 
-	if (m_globals()->m_tickcount - g_ctx.globals.last_aimbot_shot > 16) //-V807
+	if (m_globals()->m_tickcount - g_ctx.globals.last_aimbot_shot > 16)
 	{
 		g_ctx.globals.double_tap_aim = false;
 		g_ctx.globals.double_tap_aim_check = false;
@@ -339,7 +332,7 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 		m_pcmd->m_viewangles.z = 0.0f;
 	}
 
-	util::movement_fix(wish_angle, m_pcmd);
+	util::movement_fix(m_pcmd);
 	
 	if (should_recharge)
 		g_ctx.send_packet = true;
@@ -430,7 +423,7 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 
 	if (g_ctx.send_packet && !g_ctx.globals.should_send_packet && (!g_ctx.globals.should_choke_packet || (!misc::get().hide_shots_enabled && !g_ctx.globals.double_tap_fire)))
 	{
-		local_animations::get().local_data.fake_angles = m_pcmd->m_viewangles; //-V807
+		local_animations::get().local_data.fake_angles = m_pcmd->m_viewangles;
 		local_animations::get().local_data.real_angles = local_animations::get().local_data.stored_real_angles;
 	}
 
@@ -478,7 +471,7 @@ bool __stdcall hooks::hooked_createmove(float smt, CUserCmd* m_pcmd)
 				buy += crypt_str("buy taser; ");
 
 			if (g_cfg.misc.buybot3[BUY_GRENADES])
-				buy += crypt_str("buy molotov; buy hegrenade; buy smokegrenade; buy flashbang; buy flashbang; buy decoy; ");
+				buy += crypt_str("buy molotov; buy hegrenade; buy smokegrenade; buy flashbang; buy flashbang; ");
 
 			if (g_cfg.misc.buybot3[BUY_DEFUSER])
 				buy += crypt_str("buy defuser; ");

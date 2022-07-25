@@ -6,9 +6,9 @@
 
 #define CheckIfNonValidNumber(x) (fpclassify(x) == FP_INFINITE || fpclassify(x) == FP_NAN || fpclassify(x) == FP_SUBNORMAL)
 
-void airstrafe::create_move(CUserCmd* m_pcmd) //-V2008
+void airstrafe::create_move(CUserCmd* m_pcmd)
 {
-	if (g_ctx.local()->get_move_type() == MOVETYPE_LADDER) //-V807
+	if (g_ctx.local()->get_move_type() == MOVETYPE_LADDER)
 		return;
 
 	if (g_ctx.local()->m_fFlags() & FL_ONGROUND || engineprediction::get().backup_data.flags & FL_ONGROUND)
@@ -42,7 +42,7 @@ void airstrafe::create_move(CUserCmd* m_pcmd) //-V2008
 		auto get_velocity_degree = [](float velocity)
 		{
 			auto tmp = RAD2DEG(atan(30.0f / velocity));
-			
+
 			if (CheckIfNonValidNumber(tmp) || tmp > 90.0f)
 				return 90.0f;
 
@@ -78,7 +78,7 @@ void airstrafe::create_move(CUserCmd* m_pcmd) //-V2008
 			auto turn_angle = atan2(-sidemove, forwardmove);
 			viewangles.y += turn_angle * M_RADPI;
 		}
-		else if (forwardmove) //-V550
+		else if (forwardmove)
 			m_pcmd->m_forwardmove = 0.0f;
 
 		auto strafe_angle = RAD2DEG(atan(15.0f / velocity.Length2D()));

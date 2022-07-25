@@ -107,7 +107,7 @@ public:
 
 	bool __inline IsZero() 
 	{
-		return x == 0.0f && y == 0.0f && z == 0.0f; //-V550
+		return x == 0.0f && y == 0.0f && z == 0.0f;
 	}
 
 	void __inline Zero() 
@@ -117,12 +117,12 @@ public:
 
 	bool operator==(const Vector &src) const 
 	{
-		return (src.x == x) && (src.y == y) && (src.z == z); //-V550
+		return (src.x == x) && (src.y == y) && (src.z == z);
 	}
 
 	bool operator!=(const Vector &src) const 
 	{
-		return (src.x != x) || (src.y != y) || (src.z != z); //-V550
+		return (src.x != x) || (src.y != y) || (src.z != z);
 	}
 
 	Vector &operator+=(const Vector &v)
@@ -213,7 +213,7 @@ public:
 		Vector res = *this;
 		float l = res.Length();
 
-		if (l)  //-V550
+		if (l) 
 			res /= l;
 		else 
 			res.x = res.y = res.z = 0.0f;
@@ -226,7 +226,7 @@ public:
 		Vector res = *this;
 		float l = res.Length();
 
-		if (l)  //-V550
+		if (l) 
 			res /= l;
 		else 
 			res.x = res.y = res.z = 0.0f;

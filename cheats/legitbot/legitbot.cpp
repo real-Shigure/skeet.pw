@@ -508,7 +508,7 @@ void legit_bot::find_target()
 	}
 }
 
-int legit_bot::hitchance(player_t* target, const Vector& aim_angle, const Vector& point, int hitbox) //-V688
+int legit_bot::hitchance(player_t* target, const Vector& aim_angle, const Vector& point, int hitbox)
 {
 	auto final_hitchance = 0;
 	auto weapon_info = g_ctx.globals.weapon->get_csweapon_info();
@@ -592,7 +592,7 @@ int legit_bot::hitchance(player_t* target, const Vector& aim_angle, const Vector
 
 			direction.x = forward.x + right.x * spread_x + up.x * spread_y;
 			direction.y = forward.y + right.y * spread_x + up.y * spread_y;
-			direction.z = forward.z + right.z * spread_x + up.z * spread_y; //-V778
+			direction.z = forward.z + right.z * spread_x + up.z * spread_y;
 
 			auto end = g_ctx.globals.eye_pos + direction * weapon_info->flRange;
 

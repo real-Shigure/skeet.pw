@@ -47,7 +47,7 @@ struct IntRect {
 
 struct Vertex_t {
 	Vertex_t() { }
-	Vertex_t(const Vector2D &pos, const Vector2D &coord = Vector2D(0, 0)) { //-V818
+	Vertex_t(const Vector2D &pos, const Vector2D &coord = Vector2D(0, 0)) {
 		m_Position = pos;
 		m_TexCoord = coord;
 	}

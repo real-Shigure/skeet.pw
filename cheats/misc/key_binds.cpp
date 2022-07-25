@@ -20,14 +20,14 @@ void key_binds::update_key_bind(key_bind* key_bind, int key_bind_id)
 
 			misc::get().double_tap_key = is_button_down;
 
-			if (misc::get().double_tap_key && g_cfg.ragebot.double_tap_key.key != g_cfg.antiaim.hide_shots_key.key)
+			if (misc::get().double_tap_key && g_cfg.ragebot.double_tap_key.key != g_cfg.ragebot.hide_shots_key.key)
 				misc::get().hide_shots_key = false;
 
 			break;
 		case 12:
 			misc::get().hide_shots_key = is_button_down;
 
-			if (misc::get().hide_shots_key && g_cfg.antiaim.hide_shots_key.key != g_cfg.ragebot.double_tap_key.key)
+			if (misc::get().hide_shots_key && g_cfg.ragebot.hide_shots_key.key != g_cfg.ragebot.double_tap_key.key)
 				misc::get().double_tap_key = false;
 
 			break;
@@ -69,14 +69,14 @@ void key_binds::update_key_bind(key_bind* key_bind, int key_bind_id)
 
 				misc::get().double_tap_key = !misc::get().double_tap_key;
 
-				if (misc::get().double_tap_key && g_cfg.ragebot.double_tap_key.key != g_cfg.antiaim.hide_shots_key.key)
+				if (misc::get().double_tap_key && g_cfg.ragebot.double_tap_key.key != g_cfg.ragebot.hide_shots_key.key)
 					misc::get().hide_shots_key = false;
 
 				break;
 			case 12:
 				misc::get().hide_shots_key = !misc::get().hide_shots_key;
 
-				if (misc::get().hide_shots_key && g_cfg.antiaim.hide_shots_key.key != g_cfg.ragebot.double_tap_key.key)
+				if (misc::get().hide_shots_key && g_cfg.ragebot.hide_shots_key.key != g_cfg.ragebot.double_tap_key.key)
 					misc::get().double_tap_key = false;
 
 				break;
@@ -123,7 +123,7 @@ void key_binds::initialize_key_binds()
 	{
 		keys[i] = false;
 
-		if (i == 2 || i >= 12 && i <= 17) //-V648
+		if (i == 2 || i >= 12 && i <= 17)
 			mode[i] = TOGGLE;
 		else
 			mode[i] = HOLD;
@@ -136,11 +136,8 @@ void key_binds::update_key_binds()
 	update_key_bind(&g_cfg.legitbot.key, 1);
 	update_key_bind(&g_cfg.ragebot.double_tap_key, 2);
 	update_key_bind(&g_cfg.ragebot.safe_point_key, 3);
-
-	for (auto i = 0; i < 8; i++)
-		update_key_bind(&g_cfg.ragebot.weapon[i].damage_override_key, 4 + i);
-
-	update_key_bind(&g_cfg.antiaim.hide_shots_key, 12);
+	update_key_bind(&g_cfg.ragebot.damage_override_key, 4);
+	update_key_bind(&g_cfg.ragebot.hide_shots_key, 12);
 	update_key_bind(&g_cfg.antiaim.manual_back, 13);
 	update_key_bind(&g_cfg.antiaim.manual_left, 14);
 	update_key_bind(&g_cfg.antiaim.manual_right, 15);

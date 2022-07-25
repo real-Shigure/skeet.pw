@@ -65,7 +65,7 @@ struct Player_list_data
 		name.clear();
 	}
 
-	Player_list_data(int i, std::string name) //-V818
+	Player_list_data(int i, std::string name)
 	{
 		this->i = i;
 		this->name = name; //-V820
@@ -88,7 +88,7 @@ public:
 		void *pointer;
 		std::string type;
 
-		C_ConfigItem(std::string name, void *pointer, std::string type)  //-V818
+		C_ConfigItem(std::string name, void *pointer, std::string type) 
 		{
 			this->name = name; //-V820
 			this->pointer = pointer;
@@ -210,6 +210,17 @@ enum
 
 enum
 {
+	SAFEPOINTS_LETHAL,
+	SAFEPOINTS_VISIBLE,
+	SAFEPOINTS_INAIR,
+	SAFEPOINTS_INCROUCH,
+	SAFEPOINTS_AFTERXMISSES,
+	SAFEPOINTS_IFXHP,
+	SAFEPOINTS_ONLIMBS,
+};
+
+enum
+{
 	AUTOSTOP_BETWEEN_SHOTS,
 	AUTOSTOP_LETHAL,
 	AUTOSTOP_VISIBLE,
@@ -300,39 +311,39 @@ struct Config
 	{
 		bool enable;
 		bool silent_aim;
-		int field_of_view;
+		int field_of_view = 39;
 		bool autowall;
 		bool zeus_bot;
 		bool knife_bot;
 		bool autoshoot;
-		bool double_tap;
-		bool slow_teleport;
 		key_bind double_tap_key;
+		key_bind hide_shots_key;
 		bool autoscope;
 		key_bind safe_point_key;
 		key_bind body_aim_key;
-		bool pitch_antiaim_correction;
+		key_bind damage_override_key;
 
 		struct weapon
 		{
-			bool double_tap_hitchance;
-			int double_tap_hitchance_amount;
 			bool hitchance;
 			int hitchance_amount;
+			bool double_tap;
+			int double_tap_shift_value;
+			bool slow_teleport;
+			bool double_tap_hitchance;
+			int double_tap_hitchance_amount;
+			bool hide_shots;
+			int hide_shots_shift_value;
 			int minimum_visible_damage;
 			int minimum_damage;
-			key_bind damage_override_key;
 			int minimum_override_damage;
 			std::vector <int> hitboxes;
 			bool static_point_scale;
 			float head_scale;
 			float body_scale;
-			bool max_misses;
-			int max_misses_amount;
-			bool prefer_safe_points;
-			bool prefer_body_aim;
-			bool autostop;
-			std::vector <int> autostop_modifiers;
+			std::vector <int> safe_points_conditions;
+			std::vector <int> body_aim_conditions;
+			std::vector <int> automatic_stop_conditions;
 			int selection_type;
 		} weapon[8];
 	} ragebot;
@@ -341,8 +352,6 @@ struct Config
 	{
 		bool enable;
 		int antiaim_type;
-		bool hide_shots;
-		key_bind hide_shots_key;
 		int desync;
 		int legit_lby_type;
 		int lby_type;
@@ -355,8 +364,8 @@ struct Config
 		bool fakelag;
 		std::vector <int> fakelag_enablers;
 		int fakelag_type;
-		int fakelag_amount;
-		int triggers_fakelag_amount;
+		int fakelag_limit;
+		int triggers_fakelag_limit;
 
 		struct type
 		{
@@ -441,7 +450,7 @@ struct Config
 		} type[3];
 	} player;
 
-	struct Player_list_t //-V730
+	struct Player_list_t
 	{
 		bool refreshing = false;
 		std::vector <Player_list_data> players;
@@ -451,6 +460,7 @@ struct Config
 		bool force_safe_points[65];
 		bool force_body_aim[65];
 		bool low_delta[65];
+		bool disable_resolver[65];
 	} player_list;
 
 	struct Radar_t//-V730
@@ -522,12 +532,10 @@ struct Config
 		Color weapon_double_material_color;
 		bool weapon_animated_material;
 		Color weapon_animated_material_color;
-		bool taser_range;
 		bool show_spread;
 		Color show_spread_color;
 		bool penetration_reticle;
 		bool world_modulation;
-		bool rain;
 		float bloom;
 		float exposure;
 		float ambient;
@@ -552,7 +560,9 @@ struct Config
 		int thirdperson_distance;
 		bool spectators_list;
 		bool ingame_radar;
-		bool ragdolls;
+		int ragdolls_x;
+		int ragdolls_y;
+		int ragdolls_z;
 		bool bunnyhop;
 		int airstrafe;
 		bool crouch_in_air;
@@ -563,14 +573,12 @@ struct Config
 		bool fast_stop;
 		bool slidewalk;
 		key_bind slowwalk_key;
-		bool chat;
 		std::vector <int> log_output;
 		std::vector <int> events_to_log;
 		bool show_default_log;
 		Color log_color;
 		bool inventory_access;
 		bool rank_reveal;
-		bool clantag_spammer;
 		bool buybot_enable;
 		int buybot1;
 		int buybot2;

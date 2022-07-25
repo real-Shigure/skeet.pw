@@ -82,7 +82,7 @@ const char* bodyaim[] =
 	"Prefer"
 };
 
-const char* autostop_modifiers[] =
+const char* automatic_stop_conditions[] =
 {
 	"Between shots",
 	"On lethal",
@@ -90,6 +90,27 @@ const char* autostop_modifiers[] =
 	"Center",
 	"Force accuracy",
 	"Predictive"
+};
+
+const char* safe_points_conditions[] =
+{
+	"On lethal (soon)",
+	"Visible",
+	"In air",
+	"In crouch",
+	"After x misses (soon)",
+	"If hp < x (soon)",
+	"On limbs"
+};
+
+const char* body_aim_conditions[] =
+{
+	"On lethal (soon)",
+	"On lethal x2 (soon)",
+	"In air (soon)",
+	"In crouch (soon)",
+	"After x misses (soon)",
+	"If hp < x (soon)"
 };
 
 const char* hitboxes[] =
@@ -165,7 +186,7 @@ const char* weaponesp[] =
 	"Text",
 	"Box",
 	"Distance",
-	"Glow",
+	"Glow [test]",
 	"Ammo"
 };
 
@@ -217,6 +238,13 @@ const char* chamstype[] =
 	"Circuit",
 	"Golden",
 	"Glow"
+};
+
+const char* ragdoll_types[] =
+{
+	"Default",
+	"Gravity",
+	"Forcing"
 };
 
 const char* flags[] =
@@ -352,7 +380,7 @@ const char* sounds[] =
 	"Flick"
 };
 
-const char* player_model_t[] =
+const char* player_model[] =
 {
 	"None",
 	"Enforcer",
@@ -366,12 +394,7 @@ const char* player_model_t[] =
 	"Prof. Shahmat",
 	"Rezan The Ready",
 	"Doctor Romanov",
-	"Mr. Muhlik"
-};
-
-const char* player_model_ct[] =
-{
-	"None",
+	"Mr. Muhlik",
 	"Seal Team 6",
 	"3rd Commando",
 	"Operator FBI",

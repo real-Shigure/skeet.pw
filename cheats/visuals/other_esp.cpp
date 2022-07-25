@@ -27,7 +27,7 @@ bool can_penetrate(weapon_t* weapon)
 	trace_t trace;
 	util::trace_line(g_ctx.globals.eye_pos, g_ctx.globals.eye_pos + direction * weapon_info->flRange, MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &trace);
 
-	if (trace.fraction == 1.0f) //-V550
+	if (trace.fraction == 1.0f)
 		return false;
 
 	auto eye_pos = g_ctx.globals.eye_pos;
@@ -71,7 +71,7 @@ void otheresp::penetration_reticle()
 
 void otheresp::indicators()
 {
-	if (!g_ctx.local()->is_alive()) //-V807
+	if (!g_ctx.local()->is_alive())
 		return;
 
 	auto weapon = g_ctx.local()->m_hActiveWeapon().Get();
@@ -130,16 +130,16 @@ void otheresp::indicators()
 	if (choke_indicator)
 		return;
 
-	if (g_cfg.esp.indicators[INDICATOR_DT] && g_cfg.ragebot.double_tap && g_cfg.ragebot.double_tap_key.key > KEY_NONE && g_cfg.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
+	if (g_cfg.esp.indicators[INDICATOR_DT] && g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap && g_cfg.ragebot.double_tap_key.key > KEY_NONE && g_cfg.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
 		m_indicators.push_back(m_indicator("DT", !g_ctx.local()->m_bGunGameImmunity() && !(g_ctx.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().double_tap_enabled && !weapon->is_grenade() && weapon->m_iItemDefinitionIndex() != WEAPON_TASER && weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && weapon->can_fire(false) ? Color(130, 170, 20) : Color(130, 20, 20)));
 
-	if (g_cfg.esp.indicators[INDICATOR_HS] && g_cfg.antiaim.hide_shots && g_cfg.antiaim.hide_shots_key.key > KEY_NONE && g_cfg.antiaim.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
+	if (g_cfg.esp.indicators[INDICATOR_HS] && g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots && g_cfg.ragebot.hide_shots_key.key > KEY_NONE && g_cfg.ragebot.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
 		m_indicators.push_back(m_indicator("HS", !g_ctx.local()->m_bGunGameImmunity() && !(g_ctx.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().hide_shots_enabled ? Color(130, 170, 20) : Color(130, 20, 20)));
 }
 
 void otheresp::draw_indicators()
 {
-	if (!g_ctx.local()->is_alive()) //-V807
+	if (!g_ctx.local()->is_alive())
 		return;
 
 	static int width, height;
@@ -212,7 +212,7 @@ void otheresp::hitmarker_paint()
 
 void otheresp::damage_marker_paint()
 {
-	for (auto i = 1; i < m_globals()->m_maxclients; i++) //-V807
+	for (auto i = 1; i < m_globals()->m_maxclients; i++)
 	{
 		if (damage_marker[i].hurt_time + 2.0f > m_globals()->m_curtime)
 		{
@@ -275,14 +275,14 @@ void draw_circe(float x, float y, float radius, int resolution, DWORD color, DWO
 		circle[i].color = color;
 	}
 
-	device->CreateVertexBuffer((resolution + 2) * sizeof(CUSTOMVERTEX2), D3DUSAGE_WRITEONLY, D3DFVF_XYZRHW | D3DFVF_DIFFUSE, D3DPOOL_DEFAULT, &g_pVB2, nullptr); //-V107
+	device->CreateVertexBuffer((resolution + 2) * sizeof(CUSTOMVERTEX2), D3DUSAGE_WRITEONLY, D3DFVF_XYZRHW | D3DFVF_DIFFUSE, D3DPOOL_DEFAULT, &g_pVB2, nullptr);
 
 	if (!g_pVB2)
 		return;
 
 	void* pVertices;
 
-	g_pVB2->Lock(0, (resolution + 2) * sizeof(CUSTOMVERTEX2), (void**)&pVertices, 0); //-V107
+	g_pVB2->Lock(0, (resolution + 2) * sizeof(CUSTOMVERTEX2), (void**)&pVertices, 0);
 	memcpy(pVertices, &circle[0], (resolution + 2) * sizeof(CUSTOMVERTEX2));
 	g_pVB2->Unlock();
 
@@ -319,7 +319,7 @@ void otheresp::automatic_peek_indicator()
 	if (!weapon->is_non_aim() && key_binds::get().get_key_bind_state(18) || alpha)
 	{
 		if (!weapon->is_non_aim() && key_binds::get().get_key_bind_state(18))
-			alpha += 3.0f * m_globals()->m_frametime; //-V807
+			alpha += 3.0f * m_globals()->m_frametime;
 		else
 			alpha -= 3.0f * m_globals()->m_frametime;
 

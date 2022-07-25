@@ -254,7 +254,7 @@ void GrenadePrediction::Simulate(CViewSetup* setup)
 
 void VectorAngles(const Vector& forward, QAngle& angles)
 {
-	if (forward[1] == 0.0f && forward[0] == 0.0f) //-V550
+	if (forward[1] == 0.0f && forward[0] == 0.0f)
 	{
 		angles[0] = (forward[2] > 0.0f) ? 270.0f : 90.0f;
 		angles[1] = 0.0f;
@@ -266,7 +266,7 @@ void VectorAngles(const Vector& forward, QAngle& angles)
 
 		if (angles[1] > 90) angles[1] -= 180;
 		else if (angles[1] < 90) angles[1] += 180;
-		else if (angles[1] == 90) angles[1] = 0; //-V550
+		else if (angles[1] == 90) angles[1] = 0;
 	}
 
 	angles[2] = 0.0f;
@@ -282,7 +282,7 @@ int GrenadePrediction::Step(Vector& vecSrc, Vector& vecThrow, int tick, float in
 	if (CheckDetonate(vecThrow, tr, tick, interval))
 		result |= 1;
 
-	if (tr.fraction != 1.0f) //-V550
+	if (tr.fraction != 1.0f)
 	{
 		result |= 2;
 		ResolveFlyCollisionCustom(tr, vecThrow, move, interval);
@@ -318,7 +318,7 @@ bool GrenadePrediction::CheckDetonate(const Vector& vecThrow, const trace_t& tr,
 	case WEAPON_MOLOTOV:
 	case WEAPON_FIREBOMB:
 		// detonate when hitting the floor.
-		if (tr.fraction != 1.f && (std::cos(DEG2RAD(weapon_molotov_maxdetonateslope->GetFloat())) <= tr.plane.normal.z)) //-V550
+		if (tr.fraction != 1.f && (std::cos(DEG2RAD(weapon_molotov_maxdetonateslope->GetFloat())) <= tr.plane.normal.z))
 			return true;
 
 		// detonate if we have traveled for too long.
@@ -349,7 +349,7 @@ void GrenadePrediction::AddGravityMove(Vector& move, Vector& vel, float frametim
 	float gravity = sv_gravity->GetFloat() * 0.4f;
 
 	// move one tick using current velocity.
-	move.x = vel.x * m_globals()->m_intervalpertick; //-V807
+	move.x = vel.x * m_globals()->m_intervalpertick;
 	move.y = vel.y * m_globals()->m_intervalpertick;
 
 	// apply linear acceleration due to gravity.
@@ -383,7 +383,7 @@ void GrenadePrediction::ResolveFlyCollisionCustom(trace_t& tr, Vector& vecVeloci
 
 			auto network_name = client_class->m_pNetworkName;
 
-			if (strcmp(network_name, "CFuncBrush") && strcmp(network_name, "CBaseDoor") && strcmp(network_name, "CCSPlayer") && strcmp(network_name, "CBaseEntity")) //-V526
+			if (strcmp(network_name, "CFuncBrush") && strcmp(network_name, "CBaseDoor") && strcmp(network_name, "CCSPlayer") && strcmp(network_name, "CBaseEntity"))
 			{
 				// move object.
 				PushEntity(tr.endpos, move, tr);
@@ -435,7 +435,7 @@ int GrenadePrediction::PhysicsClipVelocity(const Vector& in, const Vector& norma
 	angle = normal[2];
 
 	if (angle > 0) blocked |= 1;
-	if (!angle) blocked |= 2; //-V550
+	if (!angle) blocked |= 2;
 
 	backoff = in.Dot(normal) * overbounce;
 	for (i = 0; i < 3; i++)

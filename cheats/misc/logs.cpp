@@ -73,7 +73,7 @@ void eventlogs::events(IGameEvent* event)
 		if (!userid || !attacker) 
 			return;
 
-		auto userid_id = m_engine()->GetPlayerForUserID(userid), attacker_id = m_engine()->GetPlayerForUserID(attacker); //-V807
+		auto userid_id = m_engine()->GetPlayerForUserID(userid), attacker_id = m_engine()->GetPlayerForUserID(attacker);
 
 		player_info_t userid_info, attacker_info;
 
@@ -198,16 +198,7 @@ void eventlogs::add(std::string text, bool full_display)
 	{
 		last_log = true;
 
-#if RELEASE
-#if BETA
-		m_cvar()->ConsoleColorPrintf(g_cfg.misc.log_color, crypt_str("[ LEGENDWARE BETA ] ")); //-V807
-#else
-		m_cvar()->ConsoleColorPrintf(g_cfg.misc.log_color, crypt_str("[ LEGENDWARE ] "));
-#endif
-#else
-		m_cvar()->ConsoleColorPrintf(g_cfg.misc.log_color, crypt_str("[ LEGENDWARE ALPHA ] ")); //-V807
-#endif
-
+		m_cvar()->ConsoleColorPrintf(Color(89,119,239,255), crypt_str("[skeet.idb] "));
 		m_cvar()->ConsoleColorPrintf(Color::White, text.c_str());
 		m_cvar()->ConsolePrintf(crypt_str("\n"));
 	}
@@ -219,17 +210,7 @@ void eventlogs::add(std::string text, bool full_display)
 		if (!chat)
 			chat = util::FindHudElement <CHudChat> (crypt_str("CHudChat"));
 
-#if RELEASE
-#if BETA
-		auto log = crypt_str("[ \x0CLEGENDWARE BETA \x01] ") + text;
+		auto log = crypt_str("[ \x0Cskeet.idb \x01] ") + text;
 		chat->chat_print(log.c_str());
-#else
-		auto log = crypt_str("[ \x0CLEGENDWARE \x01] ") + text;
-		chat->chat_print(log.c_str());
-#endif
-#else
-		auto log = crypt_str("[ \x0CLEGENDWARE ALPHA \x01] ") + text;
-		chat->chat_print(log.c_str());
-#endif
 	}
 }

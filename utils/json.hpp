@@ -2071,7 +2071,7 @@ namespace nlohmann
 
 				default:
 				{
-					if (JSON_UNLIKELY(t == value_t::null)) //-V547
+					if (JSON_UNLIKELY(t == value_t::null))
 					{
 						JSON_THROW(other_error::create(500, "961c151d2e87f2686a955a9be24d316f1362bf21 2.1.1")); // LCOV_EXCL_LINE
 					}
@@ -9024,7 +9024,7 @@ namespace nlohmann
 			@throw parse_error.112 if unsupported byte was read
 			*/
 			basic_json parse_cbor(const bool get_char = true)
-			{ //-V2008
+			{
 				switch (get_char ? get() : current)
 				{
 					// EOF
@@ -9434,7 +9434,7 @@ namespace nlohmann
 			@throw parse_error.112 if unsupported byte was read
 			*/
 			basic_json parse_msgpack()
-			{ //-V2008
+			{
 				switch (get())
 				{
 					// EOF
@@ -9666,8 +9666,8 @@ namespace nlohmann
 				case 0xbe:
 				case 0xbf:
 				{
-					return get_msgpack_string(); //-V1037
-				} //-V1037
+					return get_msgpack_string(); 
+				} 
 
 				case 0xc0: // nil
 				{
@@ -11114,7 +11114,7 @@ namespace nlohmann
 			character)
 			*/
 			int get_codepoint()
-			{ //-V2008
+			{
 				// this function only makes sense after reading `\u`
 				assert(current == 'u');
 				int codepoint = 0;
@@ -11388,7 +11388,7 @@ namespace nlohmann
 			description.
 			*/
 			token_type scan_string()
-			{ //-V2008
+			{
 				// reset yytext (ignore opening quote)
 				reset();
 
@@ -11962,7 +11962,7 @@ namespace nlohmann
 			locale-dependent converters.
 			*/
 			token_type scan_number()
-			{ //-V2008
+			{
 				// reset yytext to store the number's bytes
 				reset();
 

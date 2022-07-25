@@ -23,7 +23,7 @@ class matrix3x4_t {
 
 public:
 
-	matrix3x4_t() { } //-V730
+	matrix3x4_t() { }
 	matrix3x4_t(
 		float m00, float m01, float m02, float m03,
 		float m10, float m11, float m12, float m13,

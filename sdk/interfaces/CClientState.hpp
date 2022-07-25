@@ -80,43 +80,43 @@ public:
 class CClientState
 {
 public:
-	std::byte        pad0[0x9C];                //0x0000
-	INetChannel* pNetChannel;            //0x009C
-	int                iChallengeNr;            //0x00A0
-	std::byte        pad1[0x64];                //0x00A4
-	int                iSignonState;            //0x0108
-	std::byte        pad2[0x8];                //0x010C
-	float            flNextCmdTime;            //0x0114
-	int                iServerCount;            //0x0118
-	int                iCurrentSequence;        //0x011C
+	std::byte        pad0[0x9C];
+	INetChannel* pNetChannel;
+	int                iChallengeNr;
+	std::byte        pad1[0x64];
+	int                iSignonState;
+	std::byte        pad2[0x8];
+	float            flNextCmdTime;
+	int                iServerCount;
+	int                iCurrentSequence;
 	char _0x0120[4];
-	__int32 m_iClockDriftMgr; //0x0124 
+	__int32 m_iClockDriftMgr;
 	char _0x0128[68];
-	__int32 m_iServerTick; //0x016C 
-	__int32 m_iClientTick; //0x0170 
-	int                iDeltaTick;                //0x0174
-	bool            bPaused;                //0x0178
-	std::byte        pad4[0x7];                //0x0179
-	int                iViewEntity;            //0x0180
-	int                iPlayerSlot;            //0x0184
-	char            szLevelName[260];        //0x0188
-	char            szLevelNameShort[80];    //0x028C
-	char            szGroupName[80];        //0x02DC
-	std::byte        pad5[0x5C];                //0x032C
-	int                iMaxClients;            //0x0388
-	std::byte        pad6[0x4984];            //0x038C
-	float            flLastServerTickTime;    //0x4D10
-	bool            bInSimulation;            //0x4D14
-	std::byte        pad7[0xB];                //0x4D15
-	int                iOldTickcount;            //0x4D18
-	float            flTickRemainder;        //0x4D1C
-	float            flFrameTime;            //0x4D20
-	int                nLastOutgoingCommand;    //0x4D38
-	int                iChokedCommands;        //0x4D30
-	int                nLastCommandAck;        //0x4D2C
-	int                iCommandAck;            //0x4D30
-	int                iSoundSequence;            //0x4D34
-	std::byte        pad8[0x50];                //0x4D38
-	Vector            angViewPoint;            //0x4D88
-	std::byte        pad9[0xD0];                //0x4D9A
+	__int32 m_iServerTick;
+	__int32 m_iClientTick;
+	int                iDeltaTick;
+	bool            bPaused;
+	std::byte        pad4[0x7];
+	int                iViewEntity;
+	int                iPlayerSlot;
+	char            szLevelName[260];
+	char            szLevelNameShort[80];
+	char            szGroupName[80];
+	std::byte        pad5[0x5C];
+	int                iMaxClients;
+	std::byte        pad6[0x4984];
+	float            flLastServerTickTime;
+	bool            bInSimulation;
+	std::byte        pad7[0xB];
+	int                iOldTickcount;
+	float            flTickRemainder;
+	float            flFrameTime;
+	int                nLastOutgoingCommand;
+	int                iChokedCommands;
+	int                nLastCommandAck;
+	int                iCommandAck;
+	int                iSoundSequence;
+	std::byte        pad8[0x50];
+	Vector            angViewPoint;
+	std::byte        pad9[0xD0];
 }; 

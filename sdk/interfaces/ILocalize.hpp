@@ -30,6 +30,16 @@ public:
 	virtual wchar_t*				GetValueByIndex(unsigned index) = 0;
 };
 
+class IEngineVGui
+{
+public:
+	virtual					~IEngineVGui(void) { }
+
+	virtual vgui::VPANEL	GetPanel(int type) = 0;
+
+	virtual bool			IsGameUIVisible() = 0;
+};
+
 struct IBaseFileSystem
 {
 

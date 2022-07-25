@@ -101,23 +101,7 @@ void zeusbot::scan(adjust_data* record, scan_data& data)
 	{
 		auto point = scan_point(record->player->hitbox_position_matrix(hitbox, record->matrixes_data.main), hitbox, true);
 
-		if (!record->bot)
-		{
-			auto safe = 0.0f;
-
-			if (record->matrixes_data.zero[0].GetOrigin() == record->matrixes_data.first[0].GetOrigin() || record->matrixes_data.zero[0].GetOrigin() == record->matrixes_data.second[0].GetOrigin() || record->matrixes_data.first[0].GetOrigin() == record->matrixes_data.second[0].GetOrigin())
-				safe = 0.0f;
-			else if (!hitbox_intersection(record->player, record->matrixes_data.zero, hitbox, g_ctx.globals.eye_pos, point.point, &safe))
-				safe = 0.0f;
-			else if (!hitbox_intersection(record->player, record->matrixes_data.first, hitbox, g_ctx.globals.eye_pos, point.point, &safe))
-				safe = 0.0f;
-			else if (!hitbox_intersection(record->player, record->matrixes_data.second, hitbox, g_ctx.globals.eye_pos, point.point, &safe))
-				safe = 0.0f;
-
-			point.safe = safe;
-		}
-		else
-			point.safe = 1.0f;
+		point.safe = record->bot || (hitbox_intersection(record->player, record->matrixes_data.positive, hitbox, g_ctx.globals.eye_pos, point.point) && hitbox_intersection(record->player, record->matrixes_data.zero, hitbox, g_ctx.globals.eye_pos, point.point) && hitbox_intersection(record->player, record->matrixes_data.negative, hitbox, g_ctx.globals.eye_pos, point.point));
 
 		points.emplace_back(point);
 	}
@@ -200,9 +184,23 @@ void zeusbot::fire(CUserCmd* cmd)
 	if (net_channel_info)
 	{
 		auto original_tickbase = g_ctx.globals.backup_tickbase;
+		auto max_tickbase_shift = m_gamerules()->m_bIsValveDS() ? 6 : 16;
 
-		if (misc::get().double_tap_enabled && misc::get().double_tap_key)
-			original_tickbase = g_ctx.globals.backup_tickbase + g_ctx.globals.weapon->get_max_tickbase_shift();
+		if (g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap && g_cfg.ragebot.double_tap_key.key > KEY_NONE && g_cfg.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
+		{
+			if (!g_ctx.local()->m_bGunGameImmunity() && !(g_ctx.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().double_tap_enabled && !g_ctx.globals.weapon->is_grenade() && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && g_ctx.globals.weapon->can_fire(false))
+			{
+				original_tickbase += min(g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap_shift_value, max_tickbase_shift);
+			}
+		}
+
+		if (g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots && g_cfg.ragebot.hide_shots_key.key > KEY_NONE && g_cfg.ragebot.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
+		{
+			if (!g_ctx.local()->m_bGunGameImmunity() && !(g_ctx.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().hide_shots_enabled)
+			{
+				original_tickbase += min(g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots_shift_value, max_tickbase_shift);
+			}
+		}
 
 		static auto sv_maxunlag = m_cvar()->FindVar(crypt_str("sv_maxunlag"));
 
@@ -252,7 +250,6 @@ void zeusbot::fire(CUserCmd* cmd)
 	player_info_t player_info;
 	m_engine()->GetPlayerInfo(final_target.record->i, &player_info);
 
-#if BETA
 	std::stringstream log;
 
 	log << crypt_str("Fired shot at ") + (std::string)player_info.szName + crypt_str(": ");
@@ -263,7 +260,7 @@ void zeusbot::fire(CUserCmd* cmd)
 
 	if (g_cfg.misc.events_to_log[EVENTLOG_HIT])
 		eventlogs::get().add(log.str());
-#endif
+
 	cmd->m_viewangles = aim_angle;
 	cmd->m_buttons |= IN_ATTACK;
 	cmd->m_tickcount = TIME_TO_TICKS(final_target.record->simulation_time + util::get_interpolation());
@@ -347,7 +344,7 @@ int zeusbot::hitchance(const Vector& aim_angle)
 
 			direction.x = forward.x + right.x * spread_x + up.x * spread_y;
 			direction.y = forward.y + right.y * spread_x + up.y * spread_y;
-			direction.z = forward.z + right.z * spread_x + up.z * spread_y; //-V778
+			direction.z = forward.z + right.z * spread_x + up.z * spread_y;
 
 			auto end = g_ctx.globals.eye_pos + direction * weapon_info->flRange;
 

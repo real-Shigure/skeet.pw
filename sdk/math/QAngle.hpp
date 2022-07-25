@@ -44,12 +44,12 @@ public:
 
 	bool operator==(const QAngle &src) const
 	{
-		return (src.pitch == pitch) && (src.yaw == yaw) && (src.roll == roll); //-V550
+		return (src.pitch == pitch) && (src.yaw == yaw) && (src.roll == roll);
 	}
 
 	bool operator!=(const QAngle &src) const
 	{
-		return (src.pitch != pitch) || (src.yaw != yaw) || (src.roll != roll); //-V550
+		return (src.pitch != pitch) || (src.yaw != yaw) || (src.roll != roll);
 	}
 
     QAngle &operator+=(const QAngle &v)

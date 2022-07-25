@@ -19,6 +19,7 @@ namespace math {
 	float vector_normalize(Vector& v);
 	void clamp_angles(Vector & angles);
 	void vector_transform(const Vector& in1, const matrix3x4_t & in2, Vector & out);
+	void vector_i_transform(const Vector& in1, const matrix3x4_t& in2, Vector& out);
 	Vector calculate_angle(const Vector& src, const Vector& dst);
 	float get_fov(const Vector& viewangles, const Vector& aim_angle);
 	void angle_vectors(const Vector& angles, Vector& forward);
@@ -41,6 +42,7 @@ namespace math {
 	bool intersect_line_with_bb(Vector& start, Vector& end, Vector& min, Vector& max);
 	Vector vector_rotate(const Vector& in1, const matrix3x4_t& in2);
 	Vector vector_rotate(const Vector& in1, const Vector& in2);
+	void vector_i_rotate(const Vector& in1, const matrix3x4_t& in2, Vector& out);
 	matrix3x4_t angle_matrix(const Vector& angles);
 	void angle_matrix(const Vector& ang, const Vector& pos, matrix3x4_t& out);
 	void vector_rotate(const Vector& in1, const matrix3x4_t& in2, Vector& out);
@@ -54,6 +56,7 @@ namespace math {
 	float simple_spline(float value);
 	float simple_spline_remap_val_clamped(float value, float a, float b, float c, float d);
 	float direction_difference(const Vector& first, const Vector& second);
+	float angle_difference(float destAngle, float srcAngle);
 
 	template<class T, class U>
 	static T clamp(const T& in, const U& low, const U& high)

@@ -14,10 +14,10 @@ public:
 private:
 	struct loginfo_t
 	{
-		loginfo_t(float log_time, std::string message, const Color& color)  //-V818
+		loginfo_t(float log_time, std::string message, const Color& color) 
 		{
 			this->log_time = log_time;
-			this->message = message; //-V820
+			this->message = message;
 			this->color = color;
 
 			x = 6.0f;

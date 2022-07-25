@@ -149,7 +149,21 @@ struct mstudiohitboxset_t
 
 struct model_t
 {
-	char name[255];
+	void* fnHandle;
+	char name[260];
+	__int32 nLoadFlags;
+	__int32 nServerCount;
+	__int32 type;
+	__int32 flags;
+	Vector mins, maxs;
+	float radius;
+	void* m_pKeyValues;
+	union
+	{
+		void* brush;
+		MDLHandle_t studio;
+		void* sprite;
+	};
 };
 
 class studiohdr_t

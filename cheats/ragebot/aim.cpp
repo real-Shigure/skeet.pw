@@ -1,6 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #include "aim.h"
 #include "..\misc\misc.h"
 #include "..\misc\logs.h"
@@ -31,17 +28,8 @@ void aim::run(CUserCmd* cmd)
 
 	scan_targets();
 
-	if (!should_stop && g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop_modifiers[AUTOSTOP_PREDICTIVE])
+	if (!should_stop && g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].automatic_stop_conditions[AUTOSTOP_PREDICTIVE])
 	{
-		auto max_speed = 260.0f;
-		auto weapon_info = g_ctx.globals.weapon->get_csweapon_info();
-
-		if (weapon_info)
-			max_speed = g_ctx.globals.scoped ? weapon_info->flMaxPlayerSpeedAlt : weapon_info->flMaxPlayerSpeed;
-
-		auto ticks_to_stop = math::clamp(engineprediction::get().backup_data.velocity.Length2D() / max_speed * 3.0f, 0.0f, 4.0f);
-		auto predicted_eye_pos = g_ctx.globals.eye_pos + engineprediction::get().backup_data.velocity * m_globals()->m_intervalpertick * ticks_to_stop;
-
 		for (auto& target : targets)
 		{
 			if (!target.last_record->valid())
@@ -50,7 +38,7 @@ void aim::run(CUserCmd* cmd)
 			scan_data last_data;
 
 			target.last_record->adjust_player();
-			scan(target.last_record, last_data, predicted_eye_pos, true);
+			scan(target.last_record, last_data, g_ctx.globals.eye_pos);
 
 			if (!last_data.valid())
 				continue;
@@ -92,10 +80,10 @@ void aim::automatic_revolver(CUserCmd* cmd)
 
 	if (g_ctx.globals.weapon->can_fire(false))
 	{
-		if (r8cock_time <= server_time) //-V807
+		if (r8cock_time <= server_time)
 		{
 			if (g_ctx.globals.weapon->m_flNextSecondaryAttack() <= server_time)
-				r8cock_time = server_time + 0.234375f;
+				r8cock_time = server_time + TICKS_TO_TIME(13);
 			else
 				cmd->m_buttons |= IN_ATTACK2;
 		}
@@ -104,7 +92,7 @@ void aim::automatic_revolver(CUserCmd* cmd)
 	}
 	else
 	{
-		r8cock_time = server_time + 0.234375f;
+		r8cock_time = server_time + TICKS_TO_TIME(13);
 		cmd->m_buttons &= ~IN_ATTACK;
 	}
 
@@ -123,7 +111,7 @@ void aim::prepare_targets()
 		if (!e->valid(true, false))
 			continue;
 
-		auto records = &player_records[i]; //-V826
+		auto records = &player_records[i];
 
 		if (records->empty())
 			continue;
@@ -131,49 +119,25 @@ void aim::prepare_targets()
 		targets.emplace_back(target(e, get_record(records, false), get_record(records, true)));
 	}
 
-	if (targets.size() >= 4)
-	{
-		auto first = rand() % targets.size();
-		auto second = rand() % targets.size();
-		auto third = rand() % targets.size();
-
-		for (auto i = 0; i < targets.size(); ++i)
-		{
-			if (i == first || i == second || i == third)
-				continue;
-
-			targets.erase(targets.begin() + i);
-
-			if (i > 0)
-				--i;
-		}
-	}
-
-
 	for (auto& target : targets)
 		backup.emplace_back(adjust_data(target.e));
 }
 
 static bool compare_records(const optimized_adjust_data& first, const optimized_adjust_data& second)
 {
-	auto first_pitch = math::normalize_pitch(first.angles.x);
-	auto second_pitch = math::normalize_pitch(second.angles.x);
+	if (first.shot != second.shot)
+		return first.shot;
+	else if (first.speed != second.speed)
+		return first.speed > second.speed;
 
-	if (fabs(first_pitch - second_pitch) > 15.0f)
-		return fabs(first_pitch) < fabs(second_pitch);
-	else if (first.duck_amount != second.duck_amount) //-V550
-		return first.duck_amount < second.duck_amount;
-	else if (first.origin != second.origin)
-		return first.origin.DistTo(g_ctx.local()->GetAbsOrigin()) < second.origin.DistTo(g_ctx.local()->GetAbsOrigin());
-
-	return first.simulation_time > second.simulation_time;
+	return first.simulation_time < second.simulation_time;
 }
 
 adjust_data* aim::get_record(std::deque <adjust_data>* records, bool history)
 {
 	if (history)
 	{
-		std::deque <optimized_adjust_data> optimized_records; //-V826
+		std::deque <optimized_adjust_data> optimized_records;
 
 		for (auto i = 0; i < records->size(); ++i)
 		{
@@ -183,9 +147,8 @@ adjust_data* aim::get_record(std::deque <adjust_data>* records, bool history)
 			optimized_record.i = i;
 			optimized_record.player = record->player;
 			optimized_record.simulation_time = record->simulation_time;
-			optimized_record.duck_amount = record->duck_amount;
-			optimized_record.angles = record->angles;
-			optimized_record.origin = record->origin;
+			optimized_record.speed = record->velocity.Length();
+			optimized_record.shot = record->shot;
 
 			optimized_records.emplace_back(optimized_record);
 		}
@@ -223,32 +186,30 @@ adjust_data* aim::get_record(std::deque <adjust_data>* records, bool history)
 
 int aim::get_minimum_damage(bool visible, int health)
 {
-	auto minimum_damage = 1;
-
-	if (visible)
+	if (key_binds::get().get_key_bind_state(4))
 	{
-		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_visible_damage > 100)
-			minimum_damage = health + g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_visible_damage - 100;
+		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_override_damage > 100)
+			return health + g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_override_damage - 100;
 		else
-			minimum_damage = math::clamp(g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_visible_damage, 1, health);
+			return math::clamp(g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_override_damage, 1, health);
 	}
 	else
 	{
-		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_damage > 100)
-			minimum_damage = health + g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_damage - 100;
+		if (visible)
+		{
+			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_visible_damage > 100)
+				return health + g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_visible_damage - 100;
+			else
+				return math::clamp(g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_visible_damage, 1, health);
+		}
 		else
-			minimum_damage = math::clamp(g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_damage, 1, health);
+		{
+			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_damage > 100)
+				return health + g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_damage - 100;
+			else
+				return math::clamp(g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_damage, 1, health);
+		}
 	}
-
-	if (key_binds::get().get_key_bind_state(4 + g_ctx.globals.current_weapon))
-	{
-		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_override_damage > 100)
-			minimum_damage = health + g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_override_damage - 100;
-		else
-			minimum_damage = math::clamp(g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].minimum_override_damage, 1, health);
-	}
-
-	return minimum_damage;
 }
 
 void aim::scan_targets()
@@ -301,19 +262,16 @@ bool aim::automatic_stop(CUserCmd* cmd)
 	if (!should_stop)
 		return true;
 
-	if (!g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop)
-		return true;
-
 	if (g_ctx.globals.slowwalking)
 		return true;
 
-	if (!(g_ctx.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND)) //-V807
+	if (!(g_ctx.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 		return true;
 
 	if (g_ctx.globals.weapon->is_empty())
 		return true;
 
-	if (!g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop_modifiers[AUTOSTOP_BETWEEN_SHOTS] && !g_ctx.globals.weapon->can_fire(false))
+	if (!g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].automatic_stop_conditions[AUTOSTOP_BETWEEN_SHOTS] && !g_ctx.globals.weapon->can_fire(false))
 		return true;
 
 	auto animlayer = g_ctx.local()->get_animlayers()[1];
@@ -360,121 +318,47 @@ bool aim::automatic_stop(CUserCmd* cmd)
 		cmd->m_forwardmove = negative_forward_direction.x;
 		cmd->m_sidemove = negative_side_direction.y;
 
-		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop_modifiers[AUTOSTOP_FORCE_ACCURACY])
+		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].automatic_stop_conditions[AUTOSTOP_FORCE_ACCURACY])
 			return false;
 	}
 
 	return true;
 }
 
-static bool compare_points(const scan_point& first, const scan_point& second)
+void aim::scan(adjust_data* record, scan_data& data, const Vector& shoot_position)
 {
-	return !first.center && first.hitbox == second.hitbox;
-}
-
-void aim::scan(adjust_data* record, scan_data& data, const Vector& shoot_position, bool optimized)
-{
-	auto weapon = optimized ? g_ctx.local()->m_hActiveWeapon().Get() : g_ctx.globals.weapon;
-
-	if (!weapon)
+	if (!g_ctx.globals.weapon)
 		return;
 
-	auto weapon_info = weapon->get_csweapon_info();
+	auto weapon_info = g_ctx.globals.weapon->get_csweapon_info();
 
 	if (!weapon_info)
 		return;
 
-	auto hitboxes = get_hitboxes(record, optimized);
+	auto hitboxes = get_hitboxes(record);
 
 	if (hitboxes.empty())
 		return;
 
-	auto force_safe_points = record->player->m_iHealth() <= weapon_info->iDamage || key_binds::get().get_key_bind_state(3) || g_cfg.player_list.force_safe_points[record->i] || g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].max_misses && g_ctx.globals.missed_shots[record->i] >= g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].max_misses_amount; //-V648
 	auto best_damage = 0;
 
 	auto minimum_damage = get_minimum_damage(false, record->player->m_iHealth());
 	auto minimum_visible_damage = get_minimum_damage(true, record->player->m_iHealth());
-	
-	auto get_hitgroup = [](const int& hitbox)
-	{
-		if (hitbox == HITBOX_HEAD)
-			return 0;
-		else if (hitbox == HITBOX_PELVIS)
-			return 1;
-		else if (hitbox == HITBOX_STOMACH)
-			return 2;
-		else if (hitbox >= HITBOX_LOWER_CHEST && hitbox <= HITBOX_UPPER_CHEST)
-			return 3;
-		else if (hitbox >= HITBOX_RIGHT_THIGH && hitbox <= HITBOX_LEFT_FOOT)
-			return 4;
-		else if (hitbox >= HITBOX_RIGHT_HAND && hitbox <= HITBOX_LEFT_FOREARM)
-			return 5;
 
-		return -1;
-	};
-
-	std::vector <scan_point> points; //-V826
+	std::vector <scan_point> points;
 
 	for (auto& hitbox : hitboxes)
 	{
-		if (optimized)
-		{
-			points.emplace_back(scan_point(record->player->hitbox_position_matrix(hitbox, record->matrixes_data.main), hitbox, true));
-			continue;
-		}
-
 		auto current_points = get_points(record, hitbox);
 
 		for (auto& point : current_points)
 		{
-			if (!record->bot)
+			if ((g_ctx.globals.eye_pos - final_target.data.point.point).Length() <= weapon_info->flRange)
 			{
-				auto safe = 0.0f;
-
-				if (record->matrixes_data.zero[0].GetOrigin() == record->matrixes_data.first[0].GetOrigin() || record->matrixes_data.zero[0].GetOrigin() == record->matrixes_data.second[0].GetOrigin() || record->matrixes_data.first[0].GetOrigin() == record->matrixes_data.second[0].GetOrigin())
-					safe = 0.0f;
-				else if (!hitbox_intersection(record->player, record->matrixes_data.zero, hitbox, shoot_position, point.point, &safe))
-					safe = 0.0f;
-				else if (!hitbox_intersection(record->player, record->matrixes_data.first, hitbox, shoot_position, point.point, &safe))
-					safe = 0.0f;
-				else if (!hitbox_intersection(record->player, record->matrixes_data.second, hitbox, shoot_position, point.point, &safe))
-					safe = 0.0f;
-
-				point.safe = safe;
-			}
-			else
-				point.safe = 1.0f;
-
-			if (!force_safe_points || point.safe)
-				points.emplace_back(point);
-		}
-	}
-
-	if (!optimized)
-	{
-		for (auto& point : points)
-		{
-			if (points.empty())
-				return;
-
-			if (point.hitbox == HITBOX_HEAD)
-				continue;
-
-			for (auto it = points.begin(); it != points.end(); ++it)
-			{
-				if (point.point == it->point)
-					continue;
-
-				auto first_angle = math::calculate_angle(shoot_position, point.point);
-				auto second_angle = math::calculate_angle(shoot_position, it->point);
-
-				auto distance = shoot_position.DistTo(point.point);
-				auto fov = math::fast_sin(DEG2RAD(math::get_fov(first_angle, second_angle))) * distance;
-
-				if (fov < 5.0f)
+				point.safe = record->bot || (hitbox_intersection(record->player, record->matrixes_data.positive, hitbox, shoot_position, point.point) && hitbox_intersection(record->player, record->matrixes_data.zero, hitbox, shoot_position, point.point) && hitbox_intersection(record->player, record->matrixes_data.negative, hitbox, shoot_position, point.point));
+				if (!(key_binds::get().get_key_bind_state(3) || g_cfg.player_list.force_safe_points[record->i]) || point.safe)
 				{
-					points.erase(it);
-					break;
+					points.emplace_back(point);
 				}
 			}
 		}
@@ -483,32 +367,31 @@ void aim::scan(adjust_data* record, scan_data& data, const Vector& shoot_positio
 	if (points.empty())
 		return;
 
-	if (!optimized)
-		std::sort(points.begin(), points.end(), compare_points);
-
-	auto body_hitboxes = true;
-
 	for (auto& point : points)
 	{
-		if (!optimized && body_hitboxes && (point.hitbox < HITBOX_PELVIS || point.hitbox > HITBOX_UPPER_CHEST))
+		if (!point.safe)
 		{
-			body_hitboxes = false;
+			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].safe_points_conditions[SAFEPOINTS_INAIR] && !(record->flags & FL_ONGROUND))
+				continue;
 
-			if (g_cfg.player_list.force_body_aim[record->i])
-				break;
+			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].safe_points_conditions[SAFEPOINTS_INCROUCH] && record->flags & FL_ONGROUND && record->flags & FL_DUCKING)
+				continue;
 
-			if (key_binds::get().get_key_bind_state(22))
-				break;
+			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].safe_points_conditions[SAFEPOINTS_ONLIMBS] && (point.hitbox >= HITBOX_RIGHT_THIGH && point.hitbox < HITBOX_MAX))
+				continue;
 
-			if (best_damage >= record->player->m_iHealth())
-				break;
-
-			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].prefer_body_aim && best_damage >= 1)
-				break;
+			if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].safe_points_conditions[SAFEPOINTS_VISIBLE] && util::visible(g_ctx.globals.eye_pos, point.point, record->player, g_ctx.local()))
+				continue;
 		}
 
-		if (!optimized && (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].prefer_safe_points || force_safe_points) && data.point.safe && data.point.safe < point.safe)
-			continue;
+		if (point.hitbox < HITBOX_PELVIS || point.hitbox > HITBOX_UPPER_CHEST)
+		{
+			if (g_cfg.player_list.force_body_aim[record->i])
+				continue;
+
+			if (key_binds::get().get_key_bind_state(22))
+				continue;
+		}
 
 		auto fire_data = autowall::get().wall_penetration(shoot_position, point.point, record->player);
 
@@ -521,27 +404,21 @@ void aim::scan(adjust_data* record, scan_data& data, const Vector& shoot_positio
 		if (!fire_data.visible && !g_cfg.ragebot.autowall)
 			continue;
 
-		if (!optimized && get_hitgroup(fire_data.hitbox) != get_hitgroup(point.hitbox))
-			continue;
-
 		auto current_minimum_damage = fire_data.visible ? minimum_visible_damage : minimum_damage;
 
 		if (fire_data.damage >= current_minimum_damage && fire_data.damage >= best_damage)
 		{
-			if (!optimized && !should_stop)
+			if (!should_stop)
 			{
 				should_stop = true;
 
-				if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop_modifiers[AUTOSTOP_LETHAL] && fire_data.damage < record->player->m_iHealth())
+				if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].automatic_stop_conditions[AUTOSTOP_LETHAL] && fire_data.damage < record->player->m_iHealth())
 					should_stop = false;
-				else if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop_modifiers[AUTOSTOP_VISIBLE] && !fire_data.visible)
+				else if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].automatic_stop_conditions[AUTOSTOP_VISIBLE] && !fire_data.visible)
 					should_stop = false;
-				else if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].autostop_modifiers[AUTOSTOP_CENTER] && !point.center)
+				else if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].automatic_stop_conditions[AUTOSTOP_CENTER] && !point.center)
 					should_stop = false;
 			}
-
-			if (!optimized && force_safe_points && !point.safe)
-				continue;
 
 			best_damage = fire_data.damage;
 
@@ -549,26 +426,16 @@ void aim::scan(adjust_data* record, scan_data& data, const Vector& shoot_positio
 			data.visible = fire_data.visible;
 			data.damage = fire_data.damage;
 			data.hitbox = fire_data.hitbox;
-
-			if (optimized)
-				return;
 		}
 	}
 }
 
-std::vector <int> aim::get_hitboxes(adjust_data* record, bool optimized)
+std::vector <int> aim::get_hitboxes(adjust_data* record)
 {
-	std::vector <int> hitboxes; //-V827
+	std::vector <int> hitboxes;
 
-	if (optimized)
-	{
+	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].hitboxes.at(0))
 		hitboxes.emplace_back(HITBOX_HEAD);
-		hitboxes.emplace_back(HITBOX_CHEST);
-		hitboxes.emplace_back(HITBOX_STOMACH);
-		hitboxes.emplace_back(HITBOX_PELVIS);
-
-		return hitboxes;
-	}
 
 	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].hitboxes.at(1))
 		hitboxes.emplace_back(HITBOX_UPPER_CHEST);
@@ -584,9 +451,6 @@ std::vector <int> aim::get_hitboxes(adjust_data* record, bool optimized)
 
 	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].hitboxes.at(5))
 		hitboxes.emplace_back(HITBOX_PELVIS);
-
-	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].hitboxes.at(0))
-		hitboxes.emplace_back(HITBOX_HEAD);
 
 	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].hitboxes.at(6))
 	{
@@ -614,7 +478,7 @@ std::vector <int> aim::get_hitboxes(adjust_data* record, bool optimized)
 
 std::vector <scan_point> aim::get_points(adjust_data* record, int hitbox, bool from_aim)
 {
-	std::vector <scan_point> points; //-V827
+	std::vector <scan_point> points;
 	auto model = record->player->GetModel();
 
 	if (!model)
@@ -635,110 +499,62 @@ std::vector <scan_point> aim::get_points(adjust_data* record, int hitbox, bool f
 	if (!bbox)
 		return points;
 
-	auto center = (bbox->bbmin + bbox->bbmax) * 0.5f;
+	const auto mod = bbox->radius != -1.0f ? bbox->radius : 0.0f;
 
-	if (bbox->radius <= 0.0f)
+	Vector max;
+	Vector min;
+	math::vector_transform(bbox->bbmax + mod, record->matrixes_data.main[bbox->bone], max);
+	math::vector_transform(bbox->bbmin - mod, record->matrixes_data.main[bbox->bone], min);
+
+	const auto center = (min + max) * 0.5f;
+
+	points.emplace_back(scan_point(center, hitbox, true));
+
+	if (!bbox->radius)
+		return points;
+
+	if (hitbox == HITBOX_NECK || hitbox == HITBOX_RIGHT_THIGH || hitbox == HITBOX_LEFT_THIGH || hitbox == HITBOX_RIGHT_CALF || hitbox == HITBOX_LEFT_CALF || hitbox == HITBOX_RIGHT_FOOT || hitbox == HITBOX_LEFT_FOOT || hitbox == HITBOX_RIGHT_HAND || hitbox == HITBOX_LEFT_HAND || hitbox == HITBOX_RIGHT_UPPER_ARM || hitbox == HITBOX_LEFT_UPPER_ARM || hitbox == HITBOX_RIGHT_FOREARM || hitbox == HITBOX_LEFT_FOREARM)
+		return points;
+
+	const auto cur_angles = math::calculate_angle(center, g_ctx.globals.eye_pos);
+
+	Vector forward;
+	math::angle_vectors(cur_angles, forward);
+
+	auto rs = 0.0f;
+
+	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].static_point_scale)
 	{
-		auto rotation_matrix = math::angle_matrix(bbox->rotation);
-
-		matrix3x4_t matrix;
-		math::concat_transforms(record->matrixes_data.main[bbox->bone], rotation_matrix, matrix);
-
-		auto origin = matrix.GetOrigin();
-
-		if (hitbox == HITBOX_RIGHT_FOOT || hitbox == HITBOX_LEFT_FOOT)
-		{
-			auto side = (bbox->bbmin.z - center.z) * 0.875f;
-
-			if (hitbox == HITBOX_LEFT_FOOT)
-				side = -side;
-
-			points.emplace_back(scan_point(Vector(center.x, center.y, center.z + side), hitbox, true));
-
-			auto min = (bbox->bbmin.x - center.x) * 0.875f;
-			auto max = (bbox->bbmax.x - center.x) * 0.875f;
-
-			points.emplace_back(scan_point(Vector(center.x + min, center.y, center.z), hitbox, false));
-			points.emplace_back(scan_point(Vector(center.x + max, center.y, center.z), hitbox, false));
-		}
-	}
-	else 
-	{
-		auto scale = 0.0f;
-
-		if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].static_point_scale)
-		{
-			if (hitbox == HITBOX_HEAD)
-				scale = g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].head_scale;
-			else
-				scale = g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].body_scale;
-		}
-		else
-		{
-			auto transformed_center = center;
-			math::vector_transform(transformed_center, record->matrixes_data.main[bbox->bone], transformed_center);
-
-			auto spread = g_ctx.globals.spread + g_ctx.globals.inaccuracy;
-			auto distance = transformed_center.DistTo(g_ctx.globals.eye_pos);
-
-			distance /= math::fast_sin(DEG2RAD(90.0f - RAD2DEG(spread)));
-			spread = math::fast_sin(spread);
-
-			auto radius = max(bbox->radius - distance * spread, 0.0f);
-			scale = math::clamp(radius / bbox->radius, 0.0f, 1.0f);
-		}
-
-		if (scale <= 0.0f) //-V648
-		{
-			math::vector_transform(center, record->matrixes_data.main[bbox->bone], center);
-			points.emplace_back(scan_point(center, hitbox, true));
-
-			return points;
-		}
-
-		auto final_radius = bbox->radius * scale;
-
+		rs = bbox->radius * g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].body_scale;
 		if (hitbox == HITBOX_HEAD)
-		{
-			auto pitch_down = math::normalize_pitch(record->angles.x) > 85.0f;
-			auto backward = fabs(math::normalize_yaw(record->angles.y - math::calculate_angle(record->player->get_shoot_position(), g_ctx.local()->GetAbsOrigin()).y)) > 120.0f;
+			rs = bbox->radius * g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].head_scale;
+	}
+	else
+	{
+		auto transformed_center = center;
+		math::vector_transform(transformed_center, record->matrixes_data.main[bbox->bone], transformed_center);
 
-			points.emplace_back(scan_point(center, hitbox, !pitch_down || !backward));
+		auto spread = g_ctx.globals.spread + g_ctx.globals.inaccuracy;
+		auto distance = transformed_center.DistTo(g_ctx.globals.eye_pos);
 
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x + 0.70710678f * final_radius, bbox->bbmax.y - 0.70710678f * final_radius, bbox->bbmax.z), hitbox, false));
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z + final_radius), hitbox, false));
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z - final_radius), hitbox, false));
-			
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y - final_radius, bbox->bbmax.z), hitbox, false));
+		distance /= math::fast_sin(DEG2RAD(90.0f - RAD2DEG(spread)));
+		spread = math::fast_sin(spread);
 
-			if (pitch_down && backward)
-				points.emplace_back(scan_point(Vector(bbox->bbmax.x - final_radius, bbox->bbmax.y, bbox->bbmax.z), hitbox, false));
-		}
-		else if (hitbox >= HITBOX_PELVIS && hitbox <= HITBOX_UPPER_CHEST)
-		{
-			points.emplace_back(scan_point(center, hitbox, true));
-
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z + final_radius), hitbox,  false));
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z - final_radius), hitbox,  false));
-
-			points.emplace_back(scan_point(Vector(center.x, bbox->bbmax.y - final_radius, center.z), hitbox, true));
-		}
-		else if (hitbox == HITBOX_RIGHT_CALF || hitbox == HITBOX_LEFT_CALF)
-		{
-			points.emplace_back(scan_point(center, hitbox, true));
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x - final_radius, bbox->bbmax.y, bbox->bbmax.z), hitbox, false));
-		}
-		else if (hitbox == HITBOX_RIGHT_THIGH || hitbox == HITBOX_LEFT_THIGH)
-			points.emplace_back(scan_point(center, hitbox, true));
-		else if (hitbox == HITBOX_RIGHT_UPPER_ARM || hitbox == HITBOX_LEFT_UPPER_ARM)
-		{
-			points.emplace_back(scan_point(center, hitbox, true));
-			points.emplace_back(scan_point(Vector(bbox->bbmax.x + final_radius, center.y, center.z), hitbox, false));
-		}
+		auto radius = max(bbox->radius - distance * spread, 0.0f);
+		rs = bbox->radius * math::clamp(radius / bbox->radius, 0.0f, 1.0f);
 	}
 
-	for (auto& point : points)
-		math::vector_transform(point.point, record->matrixes_data.main[bbox->bone], point.point);
+	if (rs < 0.2f)
+		return points;
+
+	const auto top = Vector(0, 0, 1) * rs;
+	const auto right = forward.Cross(Vector(0, 0, 1)) * rs;
+	const auto left = Vector(-right.x, -right.y, right.z);
+
+	if (hitbox == HITBOX_HEAD)
+		points.emplace_back(scan_point(center + top, hitbox, false));
+	points.emplace_back(scan_point(center + right, hitbox, false));
+	points.emplace_back(scan_point(center + left, hitbox, false));
 
 	return points;
 }
@@ -805,14 +621,14 @@ void aim::fire(CUserCmd* cmd)
 		if (g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08 && !(g_ctx.local()->m_fFlags() & FL_ONGROUND) && !(engineprediction::get().backup_data.flags & FL_ONGROUND) && fabs(engineprediction::get().backup_data.velocity.z) < 5.0f && engineprediction::get().backup_data.velocity.Length2D() < 5.0f) //-V807
 			final_hitchance = 101;
 		else
-			final_hitchance = hitchance(aim_angle);
+			final_hitchance = calculate_hitchance(aim_angle);
 
 		if (final_hitchance < hitchance_amount)
 		{
 			auto is_zoomable_weapon = g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SCAR20 || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_G3SG1 || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08 || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_AWP || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_AUG || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SG553;
 
 			if (g_cfg.ragebot.autoscope && is_zoomable_weapon && !g_ctx.globals.weapon->m_zoomLevel())
-				cmd->m_buttons |= IN_ATTACK2;
+				cmd->m_buttons |= IN_ZOOM;
 
 			return;
 		}
@@ -824,9 +640,23 @@ void aim::fire(CUserCmd* cmd)
 	if (net_channel_info)
 	{
 		auto original_tickbase = g_ctx.globals.backup_tickbase;
+		auto max_tickbase_shift = m_gamerules()->m_bIsValveDS() ? 6 : 16;
 
-		if (misc::get().double_tap_enabled && misc::get().double_tap_key)
-			original_tickbase = g_ctx.globals.backup_tickbase + g_ctx.globals.weapon->get_max_tickbase_shift();
+		if (g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap && g_cfg.ragebot.double_tap_key.key > KEY_NONE && g_cfg.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
+		{
+			if (!g_ctx.local()->m_bGunGameImmunity() && !(g_ctx.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().double_tap_enabled && !g_ctx.globals.weapon->is_grenade() && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && g_ctx.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
+			{
+				original_tickbase += min(g_cfg.ragebot.weapon[hooks::rage_weapon].double_tap_shift_value, max_tickbase_shift);
+			}
+		}
+
+		if (g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots && g_cfg.ragebot.hide_shots_key.key > KEY_NONE && g_cfg.ragebot.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
+		{
+			if (!g_ctx.local()->m_bGunGameImmunity() && !(g_ctx.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().hide_shots_enabled)
+			{
+				original_tickbase += min(g_cfg.ragebot.weapon[hooks::rage_weapon].hide_shots_shift_value, max_tickbase_shift);
+			}
+		}
 
 		static auto sv_maxunlag = m_cvar()->FindVar(crypt_str("sv_maxunlag"));
 
@@ -836,77 +666,46 @@ void aim::fire(CUserCmd* cmd)
 		backtrack_ticks = TIME_TO_TICKS(fabs(delta_time));
 	}
 
-	static auto get_hitbox_name = [](int hitbox, bool shot_info = false) -> std::string
+	static auto get_hitbox_name = [](int hitbox) -> std::string
 	{
 		switch (hitbox)
 		{
 		case HITBOX_HEAD:
-			return shot_info ? crypt_str("Head") : crypt_str("head");
+			return crypt_str("Head");
 		case HITBOX_LOWER_CHEST:
-			return shot_info ? crypt_str("Lower chest") : crypt_str("lower chest");
+			return crypt_str("Lower chest");
 		case HITBOX_CHEST:
-			return shot_info ? crypt_str("Chest") : crypt_str("chest");
+			return crypt_str("Chest");
 		case HITBOX_UPPER_CHEST:
-			return shot_info ? crypt_str("Upper chest") : crypt_str("upper chest");
+			return crypt_str("Upper chest");
 		case HITBOX_STOMACH:
-			return shot_info ? crypt_str("Stomach") : crypt_str("stomach");
+			return crypt_str("Stomach");
 		case HITBOX_PELVIS:
-			return shot_info ? crypt_str("Pelvis") : crypt_str("pelvis");
+			return crypt_str("Pelvis");
 		case HITBOX_RIGHT_UPPER_ARM:
 		case HITBOX_RIGHT_FOREARM:
 		case HITBOX_RIGHT_HAND:
-			return shot_info ? crypt_str("Left arm") : crypt_str("left arm");
+			return crypt_str("Left arm");
 		case HITBOX_LEFT_UPPER_ARM:
 		case HITBOX_LEFT_FOREARM:
 		case HITBOX_LEFT_HAND:
-			return shot_info ? crypt_str("Right arm") : crypt_str("right arm");
+			return crypt_str("Right arm");
 		case HITBOX_RIGHT_THIGH:
 		case HITBOX_RIGHT_CALF:
-			return shot_info ? crypt_str("Left leg") : crypt_str("left leg");
+			return crypt_str("Left leg");
 		case HITBOX_LEFT_THIGH:
 		case HITBOX_LEFT_CALF:
-			return shot_info ? crypt_str("Right leg") : crypt_str("right leg");
+			return crypt_str("Right leg");
 		case HITBOX_RIGHT_FOOT:
-			return shot_info ? crypt_str("Left foot") : crypt_str("left foot");
+			return crypt_str("Left foot");
 		case HITBOX_LEFT_FOOT:
-			return shot_info ? crypt_str("Right foot") : crypt_str("right foot");
-		}
-	};
-
-	static auto get_resolver_type = [](resolver_type type) -> std::string
-	{
-		switch (type)
-		{
-		case ORIGINAL:
-			return crypt_str("original ");
-		case BRUTEFORCE:
-			return crypt_str("bruteforce ");
-		case LBY:
-			return crypt_str("lby ");
-		case TRACE:
-			return crypt_str("trace ");
-		case DIRECTIONAL:
-			return crypt_str("directional ");
+			return crypt_str("Right foot");
 		}
 	};
 
 	player_info_t player_info;
 	m_engine()->GetPlayerInfo(final_target.record->i, &player_info);
 
-#if BETA
-	std::stringstream log;
-
-	log << crypt_str("Fired shot at ") + (std::string)player_info.szName + crypt_str(": ");
-	log << crypt_str("hitchance: ") + (final_hitchance == 101 ? crypt_str("MA") : std::to_string(final_hitchance)) + crypt_str(", ");
-	log << crypt_str("hitbox: ") + get_hitbox_name(final_target.data.hitbox) + crypt_str(", ");
-	log << crypt_str("damage: ") + std::to_string(final_target.data.damage) + crypt_str(", ");
-	log << crypt_str("safe: ") + std::to_string((bool)final_target.data.point.safe) + crypt_str(", ");
-	log << crypt_str("backtrack: ") + std::to_string(backtrack_ticks) + crypt_str(", ");
-	log << crypt_str("resolver type: ") + get_resolver_type(final_target.record->type) + std::to_string(final_target.record->side);
-
-	if (g_cfg.misc.events_to_log[EVENTLOG_HIT])
-		eventlogs::get().add(log.str());
-#endif
 	cmd->m_viewangles = aim_angle;
 	cmd->m_buttons |= IN_ATTACK;
 	cmd->m_tickcount = TIME_TO_TICKS(final_target.record->simulation_time + util::get_interpolation());
@@ -924,9 +723,9 @@ void aim::fire(CUserCmd* cmd)
 	shot->side = final_target.record->side;
 	shot->fire_tick = m_globals()->m_tickcount;
 	shot->shot_info.target_name = player_info.szName;
-	shot->shot_info.client_hitbox = get_hitbox_name(final_target.data.hitbox, true);
+	shot->shot_info.client_hitbox = get_hitbox_name(final_target.data.hitbox);
 	shot->shot_info.client_damage = final_target.data.damage;
-	shot->shot_info.hitchance = final_hitchance;
+	shot->shot_info.hitchance = math::clamp(final_hitchance, 0, 100);
 	shot->shot_info.backtrack_ticks = backtrack_ticks;
 	shot->shot_info.aim_point = final_target.data.point.point;
 
@@ -935,15 +734,12 @@ void aim::fire(CUserCmd* cmd)
 	g_ctx.globals.last_aimbot_shot = m_globals()->m_tickcount;
 }
 
-int aim::hitchance(const Vector& aim_angle)
+int aim::calculate_hitchance(const Vector& aim_angle)
 {
 	auto final_hitchance = 0;
 	auto weapon_info = g_ctx.globals.weapon->get_csweapon_info();
 
 	if (!weapon_info)
-		return final_hitchance;
-
-	if ((g_ctx.globals.eye_pos - final_target.data.point.point).Length() > weapon_info->flRange)
 		return final_hitchance;
 
 	auto forward = ZERO;
@@ -955,7 +751,7 @@ int aim::hitchance(const Vector& aim_angle)
 	math::fast_vec_normalize(forward);
 	math::fast_vec_normalize(right);
 	math::fast_vec_normalize(up);
-	
+
 	auto is_special_weapon = g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_AWP || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_G3SG1 || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SCAR20 || g_ctx.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08;
 	auto inaccuracy = weapon_info->flInaccuracyStand;
 
@@ -970,7 +766,7 @@ int aim::hitchance(const Vector& aim_angle)
 		inaccuracy = weapon_info->flInaccuracyStandAlt;
 
 	if (g_ctx.globals.inaccuracy - 0.000001f < inaccuracy)
-		final_hitchance = 101;
+		final_hitchance = 100;
 	else
 	{
 		static auto setup_spread_values = true;
@@ -1019,7 +815,7 @@ int aim::hitchance(const Vector& aim_angle)
 
 			direction.x = forward.x + right.x * spread_x + up.x * spread_y;
 			direction.y = forward.y + right.y * spread_x + up.y * spread_y;
-			direction.z = forward.z + right.z * spread_x + up.z * spread_y; //-V778
+			direction.z = forward.z + right.z * spread_x + up.z * spread_y;
 
 			auto end = g_ctx.globals.eye_pos + direction * weapon_info->flRange;
 
@@ -1073,25 +869,16 @@ int aim::hitchance(const Vector& aim_angle)
 			}
 		}
 	}
-	
+
 	if (high_accuracy_weapon)
 		return (float)damage / 48.0f >= get_minimum_damage(final_target.data.visible, final_target.health) ? final_hitchance : 0;
 
 	return (float)damage / 48.0f >= (float)g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].hitchance_amount * 0.01f ? final_hitchance : 0;
 }
 
-static int clip_ray_to_hitbox(const Ray_t& ray, mstudiobbox_t* hitbox, matrix3x4_t& matrix, trace_t& trace)
+bool aim::hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, const Vector& start, const Vector& end)
 {
-	static auto fn = util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 E4 F8 F3 0F 10 42"));
-
-	trace.fraction = 1.0f;
-	trace.startsolid = false;
-
-	return reinterpret_cast <int(__fastcall*)(const Ray_t&, mstudiobbox_t*, matrix3x4_t&, trace_t&)> (fn)(ray, hitbox, matrix, trace);
-}
-
-bool aim::hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, const Vector& start, const Vector& end, float* safe)
-{
+	// note: simv0l - pasted from r7 software.
 	auto model = e->GetModel();
 
 	if (!model)
@@ -1112,26 +899,30 @@ bool aim::hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, cons
 	if (!studio_hitbox)
 		return false;
 
-	trace_t trace;
-
-	Ray_t ray;
-	ray.Init(start, end);
-
-	auto intersected = clip_ray_to_hitbox(ray, studio_hitbox, matrix[studio_hitbox->bone], trace) >= 0;
-
-	if (!safe)
-		return intersected;
-
 	Vector min, max;
 
-	math::vector_transform(studio_hitbox->bbmin, matrix[studio_hitbox->bone], min);
-	math::vector_transform(studio_hitbox->bbmax, matrix[studio_hitbox->bone], max);
+	const auto is_capsule = studio_hitbox->radius != -1.f;
 
-	auto center = (min + max) * 0.5f;
-	auto distance = center.DistTo(end);
+	if (is_capsule)
+	{
+		math::vector_transform(studio_hitbox->bbmin, matrix[studio_hitbox->bone], min);
+		math::vector_transform(studio_hitbox->bbmax, matrix[studio_hitbox->bone], max);
+		const auto dist = math::segment_to_segment(start, end, min, max);
 
-	if (distance > *safe)
-		*safe = distance;
+		if (dist < studio_hitbox->radius)
+			return true;
+	}
+	else
+	{
+		math::vector_transform(math::vector_rotate(studio_hitbox->bbmin, studio_hitbox->rotation), matrix[studio_hitbox->bone], min);
+		math::vector_transform(math::vector_rotate(studio_hitbox->bbmax, studio_hitbox->rotation), matrix[studio_hitbox->bone], max);
 
-	return intersected;
+		math::vector_i_transform(start, matrix[studio_hitbox->bone], min);
+		math::vector_i_rotate(end, matrix[studio_hitbox->bone], max);
+
+		if (math::intersect_line_with_bb(min, max, studio_hitbox->bbmin, studio_hitbox->bbmax))
+			return true;
+	}
+
+	return false;
 }

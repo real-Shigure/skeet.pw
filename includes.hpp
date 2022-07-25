@@ -3,7 +3,6 @@
 #define NDEBUG
 #define DIRECTINPUT_VERSION 0x0800
 
-#include "version.h"
 #include <thread>
 #include <iostream>
 #include <fstream>
@@ -18,6 +17,9 @@
 
 #include <dinput.h>
 #include <tchar.h>
+
+#include <ShlObj.h>
+#include <ShlObj_core.h>
 
 #include "cheats\misc\key_binds.h"
 #include "utils\util.hpp"
@@ -86,3 +88,7 @@
 #define m_viewrenderbeams g_csgo.m_viewrenderbeams
 #define m_soundservices g_csgo.m_soundservices
 #define m_basefilesys g_csgo.m_basefilesys
+#define m_networkStringTableContainer g_csgo.m_networkStringTableContainer
+
+// will use bool this later
+extern bool LoadPlayerMdlOnce;

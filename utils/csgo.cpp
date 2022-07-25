@@ -41,12 +41,13 @@ C_CSGO g_csgo;
 #undef m_viewrenderbeams
 #undef m_soundservices
 #undef m_basefilesys
+#undef m_networkStringTableContainer
 
 template<typename T>
 static T *get_interface(const char *mod_name, const char *interface_name, bool exact = false) {
 	T *iface = nullptr;
 	InterfaceReg *register_list;
-	int part_match_len = strlen(interface_name); //-V103
+	int part_match_len = strlen(interface_name);
 
 	DWORD interface_fn = reinterpret_cast<DWORD>(GetProcAddress(GetModuleHandleA(mod_name), crypt_str("CreateInterface")));
 
@@ -65,7 +66,7 @@ static T *get_interface(const char *mod_name, const char *interface_name, bool e
 				iface = reinterpret_cast<T*>(cur->m_CreateFn());
 		}
 		else {
-			if (!strncmp(cur->m_pName, interface_name, part_match_len) && std::atoi(cur->m_pName + part_match_len) > 0) //-V106
+			if (!strncmp(cur->m_pName, interface_name, part_match_len) && std::atoi(cur->m_pName + part_match_len) > 0)
 				iface = reinterpret_cast<T*>(cur->m_CreateFn());
 		}
 	}
@@ -306,7 +307,7 @@ IBaseFileSystem* C_CSGO::m_basefilesys() {
 	return p_basefilesys;
 }
 
-ILocalize * C_CSGO::m_localize() 
+ILocalize * C_CSGO::m_localize()
 {
 	if (!p_localize)
 		p_localize = get_interface< ILocalize >(crypt_str("localize.dll"), crypt_str("Localize_"));
@@ -314,10 +315,17 @@ ILocalize * C_CSGO::m_localize()
 	return p_localize;
 }
 
+NetworkStringTableContainer* C_CSGO::m_networkStringTableContainer() {
+	if (!p_networkStringTableContainer)
+		p_networkStringTableContainer = get_interface< NetworkStringTableContainer >(crypt_str("engine.dll"), crypt_str("VEngineClientStringTable"));
+
+	return p_networkStringTableContainer;
+}
+
 DWORD C_CSGO::m_postprocessing() {
 	if (!p_postprocessing)
 		p_postprocessing = *(DWORD*)(util::FindSignature(crypt_str("client.dll"), g_ctx.signatures.at(7).c_str()) + 0x2);
-	
+
 	return p_postprocessing;
 }
 

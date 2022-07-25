@@ -50,7 +50,7 @@ struct BeamInfo_t {
 	float		m_flStartRadius;
 	float		m_flEndRadius;
 
-	BeamInfo_t( ) { //-V730
+	BeamInfo_t( ) {
 		m_nType = TE_BEAMPOINTS;
 		m_nSegments = -1;
 		m_pszModelName = NULL;

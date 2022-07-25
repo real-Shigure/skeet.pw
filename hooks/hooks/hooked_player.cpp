@@ -30,7 +30,7 @@ _declspec(noinline)bool hooks::setupbones_detour(void* ecx, matrix3x4_t* bone_wo
 			auto previous_weapon = animstate ? animstate->m_pLastBoneSetupWeapon : nullptr;
 
 			if (previous_weapon)
-				animstate->m_pLastBoneSetupWeapon = animstate->m_pActiveWeapon; //-V1004
+				animstate->m_pLastBoneSetupWeapon = animstate->m_pActiveWeapon;
 
 			if (g_ctx.globals.setuping_bones)
 				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
@@ -40,7 +40,7 @@ _declspec(noinline)bool hooks::setupbones_detour(void* ecx, matrix3x4_t* bone_wo
 				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
 			else if (player == g_ctx.local())
 				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
-			else if (!player->m_CachedBoneData().Count()) //-V807
+			else if (!player->m_CachedBoneData().Count())
 				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
 			else if (bone_world_out && max_bones != -1)
 				memcpy(bone_world_out, player->m_CachedBoneData().Base(), player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
@@ -89,12 +89,15 @@ void __fastcall hooks::hooked_doextrabonesprocessing(player_t* player, void* edx
 
 _declspec(noinline)void hooks::updateclientsideanimation_detour(player_t* player)
 {
+	if (g_ctx.globals.updating_skins)
+		return;
+
 	if (g_ctx.globals.updating_animation)
 		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
 
 	if (player == g_ctx.local())
 		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
-	
+
 	if (!g_cfg.ragebot.enable && !g_cfg.legitbot.enabled)
 		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
 
@@ -117,9 +120,9 @@ _declspec(noinline)void hooks::physicssimulate_detour(player_t* player)
 		return;
 	}
 
-	engineprediction::get().restore_netvars();
-	((PhysicsSimulateFn)original_physicssimulate)(player);
 	engineprediction::get().store_netvars();
+	((PhysicsSimulateFn)original_physicssimulate)(player);
+	engineprediction::get().restore_netvars();
 }
 
 void __fastcall hooks::hooked_physicssimulate(player_t* player)

@@ -340,7 +340,6 @@ public:
     bool is_knife();
     bool is_non_aim();
     bool can_double_tap();
-    int get_max_tickbase_shift();
     float get_inaccuracy();
     float get_spread();
     void update_accuracy_penality();

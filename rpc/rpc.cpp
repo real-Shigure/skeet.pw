@@ -1,7 +1,12 @@
 #include "discord_rpc.h"
 #include "discord_register.h"
 #pragma comment(lib, "discord-rpc.lib")
+#include <iostream>;
+#include <time.h>
+#include <wtypes.h>
+using namespace std;
 DiscordRichPresence discordPresence;
+const char* token = "768309659646951434"; //not necessary
 void UpdatePresence()
 {
 	DiscordRichPresence discordPresence;
@@ -19,7 +24,7 @@ void UpdatePresence()
 void Initialize()
 {
 	DiscordEventHandlers handlers;
-	memset(&handlers, 0, sizeof(handlers));
+	std::memset(&handlers, 0, sizeof(handlers));
 	Discord_Initialize("768309659646951434", &handlers, TRUE, nullptr);
 }
 

@@ -9,7 +9,7 @@
 #include "characterset.hpp"
 #include "UtlBuffer.hpp"
 
-#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) )  //-V1003
+#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) 
 #define stackalloc( _size )		_alloca( ALIGN_VALUE( _size, 16 ) )
 
 ConCommandBase *ConCommandBase::s_pConCommandBases = NULL;
@@ -204,7 +204,7 @@ bool ConCommandBase::IsRegistered(void) const
 static characterset_t s_BreakSet;
 static bool s_bBuiltBreakSet = false;
 
-CCommand::CCommand() //-V730
+CCommand::CCommand()
 {
 	if (!s_bBuiltBreakSet) {
 		s_bBuiltBreakSet = true;
@@ -214,7 +214,7 @@ CCommand::CCommand() //-V730
 	Reset();
 }
 
-CCommand::CCommand(int nArgC, const char **ppArgV) //-V730
+CCommand::CCommand(int nArgC, const char **ppArgV)
 {
 	assert(nArgC > 0);
 
@@ -582,7 +582,7 @@ void ConVar::InternalSetValue(const char *value)
 
 	// Redetermine value
 	*(uint32_t*)&m_Value.m_fValue = *(uint32_t*)&fNewValue ^ (uint32_t)this;
-	*(uint32_t*)&m_Value.m_nValue = (uint32_t)fNewValue ^ (uint32_t)this; //-V2004
+	*(uint32_t*)&m_Value.m_nValue = (uint32_t)fNewValue ^ (uint32_t)this;
 
 	if (!(m_nFlags & FCVAR_NEVER_AS_STRING)) {
 		ChangeStringValue(val, flOldValue);
@@ -641,7 +641,7 @@ void ConVar::InternalSetFloatValue(float fNewValue)
 	// Redetermine value
 	float flOldValue = m_Value.m_fValue;
 	*(uint32_t*)&m_Value.m_fValue = *(uint32_t*)&fNewValue ^ (uint32_t)this;
-	*(uint32_t*)&m_Value.m_nValue = (uint32_t)fNewValue ^ (uint32_t)this; //-V2004
+	*(uint32_t*)&m_Value.m_nValue = (uint32_t)fNewValue ^ (uint32_t)this;
 
 	if (!(m_nFlags & FCVAR_NEVER_AS_STRING)) {
 		char tempVal[32];

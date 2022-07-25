@@ -60,7 +60,7 @@ void __fastcall hooks::hooked_packetend(void* ecx, void* edx)
 	static auto original_fn = clientstate_hook->get_func_address <PacketEnd_t>(6);
 	g_ctx.local((player_t*)m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer()), true);
 
-	if (!g_ctx.local()->is_alive())  //-V807
+	if (!g_ctx.local()->is_alive()) 
 	{
 		g_ctx.globals.data.clear();
 		return original_fn(ecx);
@@ -84,7 +84,7 @@ void __fastcall hooks::hooked_packetend(void* ecx, void* edx)
 			{
 				auto weapon = g_ctx.local()->m_hActiveWeapon().Get();
 
-				if (!weapon || weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && !weapon->is_grenade()) //-V648
+				if (!weapon || weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && !weapon->is_grenade())
 				{
 					for (auto& number : g_ctx.globals.choked_number)
 					{

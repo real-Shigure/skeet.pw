@@ -14,13 +14,10 @@ void __fastcall hooks::hooked_runcommand(void* ecx, void* edx, player_t* player,
 	static auto original_fn = prediction_hook->get_func_address <RunCommand_t> (19);
 	g_ctx.local((player_t*)m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer()), true);
 
-	if (!player || player != g_ctx.local())
+	if (!player || !m_pcmd || player != g_ctx.local())
 		return original_fn(ecx, player, m_pcmd, move_helper);
 
-	if (!m_pcmd)
-		return original_fn(ecx, player, m_pcmd, move_helper);
-
-	if (m_pcmd->m_tickcount > m_globals()->m_tickcount + 72) //-V807
+	if (m_pcmd->m_tickcount > m_globals()->m_tickcount + 72)
 	{
 		m_pcmd->m_predicted = true;
 		player->set_abs_origin(player->m_vecOrigin());
@@ -95,10 +92,6 @@ using InPrediction_t = bool(__thiscall*)(void*);
 bool __stdcall hooks::hooked_inprediction()
 {
 	static auto original_fn = prediction_hook->get_func_address <InPrediction_t> (14);
-	static auto maintain_sequence_transitions = util::FindSignature(crypt_str("client.dll"), crypt_str("84 C0 74 17 8B 87"));
-
-	if ((g_cfg.ragebot.enable || g_cfg.legitbot.enabled) && g_ctx.globals.setuping_bones && (uintptr_t)_ReturnAddress() == maintain_sequence_transitions)
-		return true;
 
 	return original_fn(m_prediction());
 }
@@ -166,7 +159,9 @@ next_cmd:
 	to_cmd = from_cmd;
 
 	to_cmd.m_command_number++;
-	to_cmd.m_tickcount += 200;
+
+	// note: simv0l - i think += (tickrate * 3) more accurate than += 200.
+	to_cmd.m_tickcount += ((int)(1.0f / m_globals()->m_intervalpertick) * 3);//200;
 
 	if (newcmds > choked_modifier)
 		return true;

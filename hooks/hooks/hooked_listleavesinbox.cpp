@@ -34,7 +34,7 @@ int __fastcall hooks::hooked_listleavesinbox(void* ecx, void* edx, Vector& mins,
 	if (!g_cfg.player.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] && !g_cfg.player.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] && !g_cfg.player.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] && !g_cfg.player.fake_chams_enable && !g_cfg.player.backtrack_chams)
 		return original_fn(ecx, mins, maxs, list, list_max);
 
-	if (*(uint32_t*)_ReturnAddress() != 0x14244489) //-V206
+	if (*(uint32_t*)_ReturnAddress() != 0x14244489)
 		return original_fn(ecx, mins, maxs, list, list_max);
 
 	auto info = *(RenderableInfo_t**)((uintptr_t)_AddressOfReturnAddress() + 0x14);
